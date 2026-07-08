@@ -1,9 +1,57 @@
 import type { Product } from '../../Types/Global'
-import { Heart, Star, Trash2 } from "lucide-react"
+import { Heart, Star, Trash2, Ellipsis, Pencil } from "lucide-react"
 import { useState } from 'react'
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Button, Modal, Space } from 'antd';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
+
+import type { MenuProps } from 'antd';
+import { Dropdown } from 'antd';
+
+const items: MenuProps['items'] = [
+    {
+        label: (
+
+
+
+            <Button type='text' onClick={(e) => {
+                e.stopPropagation();
+                showDeleteConfirm();
+            }} icon={
+                <Trash2
+                />
+            } />
+        ),
+        key: '0',
+    },
+    {
+        label: (
+
+
+            <Button type='text' onClick={(e) => {
+                e.stopPropagation();
+
+            }} icon={
+                <Heart
+                />
+            }
+
+            />
+
+        ),
+        key: '1',
+    },
+    {
+        label: (
+
+            <a href="/edit" target="_blank" rel="noopener noreferrer">
+                <Pencil />
+            </a>
+        ),
+        key: '2',
+    }
+
+];
 
 const { confirm } = Modal;
 const showDeleteConfirm = () => {
@@ -27,7 +75,6 @@ const showDeleteConfirm = () => {
 
 const ProductCard = ({ id, title, price, thumbnail, category }: Product) => {
     const navigate = useNavigate();
-    const [isFavorite, setIsFavorite] = useState(false);
 
 
     return (
@@ -35,28 +82,21 @@ const ProductCard = ({ id, title, price, thumbnail, category }: Product) => {
         <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
             <div className="relative bg-[#f7f8f9] ">
                 <img className="w-full p-5 h-full object-cover hover:scale-105 transition-transform duration-300 ease-in-out" src={thumbnail} alt={title} />
-                <div className="absolute top-4 left-4">
-                    <Button type='text' onClick={(e) => {
-                        e.stopPropagation();
-                        showDeleteConfirm();
-                    }} icon={
-                        <Trash2
-                            className="text-blue-800   cursor-pointer"
-                        />
-                    } />
-                </div>
-                <div className="absolute top-4 right-4">
-                    <Button type='text' icon={
-                        <Heart
-                            className="text-red-500 hover:scale-110 duration-200  cursor-pointer"
-                            fill={isFavorite ? "#ef4444" : "none"}
-                        />
-                    }
-                        onClick={(e) => {
+                <div className="absolute right-4 top-4">
+
+                    <Dropdown
+
+                        menu={{ items }} trigger={['click']}>
+                        <a onClick={(e) => {
                             e.stopPropagation();
-                            setIsFavorite(!isFavorite)
-                        }}
-                    />
+                            e.preventDefault()
+                        }}>
+                            <Space>
+                                <Ellipsis />
+
+                            </Space>
+                        </a>
+                    </Dropdown>
 
                 </div>
             </div>

@@ -33,7 +33,7 @@ const ProductDetail = () => {
             </a>
             <div className="details-body mt-8 flex flex-wrap justify-center item gap-16">
                 <div className="left-content flex flex-col">
-                    <img src={product.thumbnail} alt={product.title} className="w-full cursor-zoom-in hover:p-0 duration-300  p-2 rounded-xl border border-gray-200 bg-[#f5f6f8]" />
+                    <img src={product.thumbnail} alt={product.title} className="w-full cursor-zoom-in  duration-300  p-2 rounded-xl border border-gray-200 bg-[#f5f6f8]" />
                     <div className="flex mt-4 gap-4">
                         {product.images.slice(0, 4).map((image, index) => (
                             <Fragment key={`fb-${index}`}>
@@ -92,9 +92,9 @@ const ProductDetail = () => {
                             <span className="text-gray-600 text-lg ml-2">({product.reviews?.length ?? 0})</span>
                         </h1>
                         {product.reviews?.map((review, index) => (
-                            <div key={index} className="review-card grid grid-cols-5 w-90 border border-gray-200 p-3 h-24 rounded-xl ">
+                            <div key={index} className="review-card my-2 grid grid-cols-6 w-90 border-2 border-gray-100 p-3 h-24 rounded-xl ">
 
-                                <div className="user-image rounded-full  ">
+                                <div className="user-image rounded-full ">
                                     <CircleUser className="w-11 h-11" strokeWidth={1} />
                                 </div>
 
@@ -105,12 +105,12 @@ const ProductDetail = () => {
                                     </div>
                                     <p className="text-gray-600">{review.comment}</p>
                                 </div>
-                                <div className="revies-date ">
-                                    <p className="text-gray-600">
-                                        {new Date(review.date).toLocaleDateString("az-AZ",
+                                <div className="revies-date col-span-2">
+                                    <p className="text-gray-600 text-sm">
+                                        {new Date(review.date).toLocaleDateString("en-US",
                                             {
                                                 day: "numeric",
-                                                month: "2-digit",
+                                                month: "long",
                                                 year: "numeric"
                                             })}
                                     </p>

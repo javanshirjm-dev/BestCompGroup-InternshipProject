@@ -14,64 +14,44 @@ import { Empty, Spin } from "antd";
 import clsx from "clsx";
 import type { Product } from "../../../Types/Global";
 
-const items: MenuProps['items'] = [
-    {
-        key: '1',
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                Sort by Price
-            </a>
-        ),
-    },
-    {
-        key: '2',
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                Sort by Popularity
-            </a>
-        ),
 
-        disabled: false,
-    },
-    {
-        key: '3',
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-                Sort by Rating
-            </a>
-        ),
-        disabled: false,
-    },
-    {
-        key: '4',
-        danger: false,
-        label: 'Sort by A-Z',
-    },
-];
 
 const HomePage = () => {
+    const items: MenuProps['items'] = [
+        { key: 'title_asc', label: 'Sort by Title' },
+        { key: 'price_desc', label: 'Sort by Price', disabled: false },
+    ];
     const [size] = useState<SizeType>('large');
-
     const [inputValue, setInputValue] = useState('');
     const [searchParams, setSearchParams] = useSearchParams();
     const debouncedSearch = useDebounce(inputValue);
-
     const currentPage = Number(searchParams.get('page')) || 1;
+    const sortBy = searchParams.get('sortBy') || '';
+    const order = searchParams.get('order') || '';
     const setCurrentPage = (page: number) => {
-        setSearchParams({ page: page.toString() });
+        const params = new URLSearchParams(searchParams);
+        params.set('page', page.toString());
+        setSearchParams(params);
     }
     const limit = 15;
-
+    const handleSort = (sortBy: string, order: string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('sortBy', sortBy);
+        params.set('order', order);
+        setSearchParams(params);
+    }
     const { data: { products = [], total = 0 } = {}, isLoading, isFetching, isError } = useQuery<{
         products: Product[],
         total: number
     }>({
-        queryKey: ['products', debouncedSearch, currentPage],
+        queryKey: ['products', debouncedSearch, currentPage, sortBy, order],
         queryFn: async () => {
             const skip = (currentPage - 1) * limit;
+            const sortParams = sortBy ? `&sortBy=${sortBy}&order=${order}` : '';
+
             const endpoint = debouncedSearch
-                ? `https://dummyjson.com/products/search?q=${debouncedSearch}&skip=${skip}&limit=${limit}`
-                : `https://dummyjson.com/products?skip=${skip}&limit=${limit}`;
+                ? `https://dummyjson.com/products/search?q=${debouncedSearch}&skip=${skip}&limit=${limit}${sortParams}`
+                : `https://dummyjson.com/products?skip=${skip}&limit=${limit}${sortParams}`;
 
             const res = await fetch(endpoint);
             if (!res.ok) throw new Error("Məlumat gəlmədi!");
@@ -114,12 +94,20 @@ const HomePage = () => {
                     </div>
                 </div>
                 <div className="shrink-0">
-                    <Dropdown menu={{ items }}>
+                    <Dropdown
+                        menu={{
+                            items,
+                            onClick: ({ key }) => {
+                                const [a, b] = String(key).split('_');
+                                handleSort(a, b);
+                            },
+                        }}
+                    >
                         <a
                             className="flex items-center justify-between border-2 border-gray-200 p-2 px-5 w-80 rounded-xl cursor-pointer"
                             onClick={(e) => e.preventDefault()}
                         >
-                            <span>Sort by Release Date</span>
+                            <span>All Products</span>
                             <DownOutlined />
                         </a>
                     </Dropdown>
@@ -158,7 +146,7 @@ const HomePage = () => {
                 )}
             </Spin>
 
-            <section className='flex items-center mt-10 justify-center'>
+            <section className='pagination flex items-center mt-10 justify-center'>
                 <Pagination
                     current={currentPage}
                     total={total}
