@@ -1,0 +1,76 @@
+import type { Product } from '../../Types/Global'
+import { Heart, Star, Trash2 } from "lucide-react"
+import { useState } from 'react'
+import { ExclamationCircleFilled } from '@ant-design/icons';
+import { Button, Modal, Space } from 'antd';
+import { Link } from 'react-router';
+
+const { confirm } = Modal;
+const showDeleteConfirm = () => {
+    confirm({
+        title: 'Delete product?',
+        icon: <ExclamationCircleFilled />,
+        content: 'This action cannot be undone.',
+        okText: 'Delete',
+        okType: 'danger',
+        cancelText: 'Cancel',
+        onOk() {
+            console.log('OK');
+        },
+        onCancel() {
+            console.log('Cancel');
+        },
+    });
+};
+
+
+
+const ProductCard = ({ id, title, price, thumbnail, category }: Product) => {
+    const [isFavorite, setIsFavorite] = useState(false);
+
+
+    return (
+
+        <div className="rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
+            <div className="relative bg-[#f7f8f9] ">
+                <img className="w-full p-5 h-full object-cover hover:scale-105 transition-transform duration-300 ease-in-out" src={thumbnail} alt={title} />
+                <div className="absolute top-4 right-4">
+                    <Heart
+                        className="text-red-500 hover:scale-110 duration-200  cursor-pointer"
+                        fill={isFavorite ? "#ef4444" : "none"}
+                        onClick={() => setIsFavorite(!isFavorite)}
+                    />
+
+                </div>
+                <div className="absolute top-4 left-4">
+                    <Button type='text' className='' onClick={showDeleteConfirm} icon={
+                        <Trash2
+                            className="text-blue-800   cursor-pointer"
+                        />
+                    } />
+
+                </div>
+            </div>
+
+            <Link to={`/products/${id}`}>
+                <div className="card-body cursor-pointer p-5 hover:scale-99 duration-200">
+                    <h1 className="text-lg text-black font-medium line-clamp-1">{title}</h1>
+                    <p className="text-[16px] font-medium text-[#58616e] my-1 capitalize line-clamp-1">{category}</p>
+                    <div className="card-bottom mt-4 flex justify-between items-center">
+                        <h1 className="text-yellow-500 flex items-center gap-1 font-medium">
+                            <Star className="w-4 h-4" fill="#fdc700" color="#fdc700" strokeWidth={3} />
+
+                            4.7
+                        </h1>
+                        <h1 className="font-medium text-black text-[16px]">${price}</h1>
+                    </div>
+                </div>
+            </Link>
+
+
+
+        </div>
+    )
+}
+
+export default ProductCard

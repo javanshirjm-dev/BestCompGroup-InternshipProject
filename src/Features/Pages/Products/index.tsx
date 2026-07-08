@@ -1,0 +1,168 @@
+import { Plus, Search } from "lucide-react"
+import Pagination from "antd/es/pagination/Pagination"
+import Button from "antd/es/button"
+import { DownOutlined } from '@ant-design/icons';
+import { useState } from "react"
+import type { SizeType } from "antd/es/config-provider/SizeContext"
+import Dropdown from "antd/es/dropdown/dropdown"
+import type { MenuProps } from "antd/es/menu/menu"
+import { useSearchParams } from "react-router";
+import { useQuery } from '@tanstack/react-query'
+import ProductCard from "../../Components/product-card"
+import useDebounce from "../../../hooks/useDebounce";
+import { Empty, Spin } from "antd";
+import clsx from "clsx";
+import type { Product } from "../../../Types/Global";
+
+const items: MenuProps['items'] = [
+    {
+        key: '1',
+        label: (
+            <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                Sort by Price
+            </a>
+        ),
+    },
+    {
+        key: '2',
+        label: (
+            <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+                Sort by Popularity
+            </a>
+        ),
+
+        disabled: false,
+    },
+    {
+        key: '3',
+        label: (
+            <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
+                Sort by Rating
+            </a>
+        ),
+        disabled: false,
+    },
+    {
+        key: '4',
+        danger: false,
+        label: 'Sort by A-Z',
+    },
+];
+
+const HomePage = () => {
+    const [size] = useState<SizeType>('large');
+
+    const [inputValue, setInputValue] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const debouncedSearch = useDebounce(inputValue);
+
+    const currentPage = Number(searchParams.get('page')) || 1;
+    const setCurrentPage = (page: number) => {
+        setSearchParams({ page: page.toString() });
+    }
+    const limit = 15;
+
+    const { data: { products = [], total = 0 } = {}, isLoading, isFetching, isError } = useQuery<{
+        products: Product[],
+        total: number
+    }>({
+        queryKey: ['products', debouncedSearch, currentPage],
+        queryFn: async () => {
+            const skip = (currentPage - 1) * limit;
+            const endpoint = debouncedSearch
+                ? `https://dummyjson.com/products/search?q=${debouncedSearch}&skip=${skip}&limit=${limit}`
+                : `https://dummyjson.com/products?skip=${skip}&limit=${limit}`;
+
+            const res = await fetch(endpoint);
+            if (!res.ok) throw new Error("Məlumat gəlmədi!");
+            return res.json();
+        },
+    });
+
+    if (isError) return <p>Something went wrong.</p>;
+
+    return (
+        <div className="flex-1 p-6">
+            <section className="flex justify-between">
+                <div className="title">
+                    <h1 className="text-3xl font-bold">Products</h1>
+                </div>
+                <div className="addProduct">
+                    <a href="/edit">
+                        <Button size={size} type="primary">
+                            <Plus className="w-5 h-5" />
+                            Add Product
+                        </Button>
+                    </a>
+
+                </div>
+            </section>
+
+            <section className="flex w-full mt-6 items-center gap-3">
+                <div className="flex-1 min-w-0">
+                    <div className="items-center  hover:scale-101 duration-200 flex border-2 border-gray-200 p-2 px-4 rounded-xl">
+                        <Search className="mr-4 text-gray-400 h-5 w-5" />
+                        <input
+                            className="size-full focus:outline-none focus:ring-0 focus:ring-offset-0"
+                            type="text"
+                            placeholder="Search products..."
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+
+
+                        />
+                    </div>
+                </div>
+                <div className="shrink-0">
+                    <Dropdown menu={{ items }}>
+                        <a
+                            className="flex items-center justify-between border-2 border-gray-200 p-2 px-5 w-80 rounded-xl cursor-pointer"
+                            onClick={(e) => e.preventDefault()}
+                        >
+                            <span>Sort by Release Date</span>
+                            <DownOutlined />
+                        </a>
+                    </Dropdown>
+                </div>
+            </section>
+
+            <Spin spinning={isLoading || isFetching}>
+                {products.length > 0 ? (
+                    <section className="grid-cols-1 lg:grid-cols-5 md:grid-cols-4 gap-5 mt-6 grid">
+                        {products.map((product) => (
+                            <ProductCard
+                                id={product.id}
+                                key={product.id}
+                                title={product.title}
+                                images={product.images}
+                                category={product.category}
+                                availabilityStatus={product.availabilityStatus}
+                                discountPercentage={product.discountPercentage}
+                                thumbnail={product.thumbnail}
+                                price={product.price}
+                                description={product.description}
+                            />
+
+                        ))}
+                    </section>
+                ) : (
+                    <Empty description="No products found" className={clsx('my-30', {
+                        'opacity-0': isLoading
+                    })} />
+                )}
+            </Spin>
+
+            <section className='flex items-center mt-10 justify-center'>
+                <Pagination
+                    current={currentPage}
+                    total={total}
+                    pageSize={limit}
+                    onChange={setCurrentPage}
+
+                />
+            </section>
+        </div>
+    )
+}
+
+export default HomePage
