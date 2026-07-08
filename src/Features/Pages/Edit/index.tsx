@@ -46,6 +46,7 @@ const Edit = () => {
     ];
 
     return (
+
         <div className="p-6">
             <a href="/products" className="nav font-medium flex gap-3">
                 <ArrowLeft />

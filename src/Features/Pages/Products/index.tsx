@@ -132,9 +132,15 @@ const HomePage = () => {
                         {products.map((product) => (
                             <ProductCard
                                 id={product.id}
+                                reviews={product.reviews}
                                 key={product.id}
                                 title={product.title}
                                 images={product.images}
+                                rating={product.rating}
+                                brand={product.brand}
+                                warrantyInformation={product.warrantyInformation}
+                                sku={product.sku}
+                                stock={product.stock}
                                 category={product.category}
                                 availabilityStatus={product.availabilityStatus}
                                 discountPercentage={product.discountPercentage}
