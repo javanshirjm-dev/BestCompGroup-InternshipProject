@@ -5,6 +5,13 @@ export type NavbarItems = {
     icon?: string;
 }
 
+export interface Review {
+    comment: string;
+    date: string;
+    rating: number;
+    reviewerEmail: string;
+    reviewerName: string;
+}
 
 export interface Product {
     id?: number;
@@ -20,12 +27,6 @@ export interface Product {
     discountPercentage: number;
     rating: number;
     images: string[];
-    availabilityStatus: strin;
+    availabilityStatus: string;
     description: string;
-}
-export interface Reviews {
-    rating: number;
-    comment: string;
-    date: string;
-
 }
