@@ -14,7 +14,7 @@ export interface Review {
 }
 
 export interface Product {
-    id?: number;
+    id: number;
     title: string;
     category: string;
     price: number;

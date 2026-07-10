@@ -1,161 +1,109 @@
-import { ArrowLeft } from "lucide-react";
-import { DownOutlined } from '@ant-design/icons';
-import Dropdown from "antd/es/dropdown/dropdown"
-import Button from "antd/es/button"
-import type { MenuProps } from "antd/es/menu/menu"
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import { Form, Input, InputNumber, Button, Spin, Select } from 'antd';
+import { ArrowLeft } from 'lucide-react';
+import { useEffect } from 'react';
+import useUpdateProduct from '../../../hooks/useUpdateProduct';
+import type { Product } from '../../../Types/Global';
 
-const Edit = () => {
-    const navigate = useNavigate();
-    const items: MenuProps['items'] = [
-        {
-            key: '1',
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                    Sort by Price
-                </a>
-            ),
-        },
-        {
-            key: '2',
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                    Sort by Popularity
-                </a>
-            ),
 
-            disabled: false,
+const AddOrEditProduct = () => {
+    const navigate = useNavigate()
+    const { id } = useParams();
+    const [form] = Form.useForm();
+
+    const { data: product, isLoading } = useQuery<Product>({
+        queryKey: ['product', id],
+        queryFn: async () => {
+            const res = await fetch(`https://dummyjson.com/products/${id}`);
+            if (!res.ok) throw new Error('Məhsul tapılmadı!');
+            return res.json();
         },
-        {
-            key: '3',
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-                    Sort by Rating
-                </a>
-            ),
-            disabled: false,
+        enabled: !!id
+    });
+
+    const { data: categories } = useQuery<{ slug: string; name: string }[]>({
+        queryKey: ['categories'],
+        queryFn: async () => {
+            const res = await fetch('https://dummyjson.com/products/categories');
+            return res.json();
         },
-        {
-            key: '4',
-            danger: false,
-            label: 'Sort by A-Z',
-        },
-    ];
+    });
+
+    const { mutate, isPending } = useUpdateProduct(id!);
+
+    useEffect(() => {
+        if (product) {
+            form.setFieldsValue(product);
+        }
+    }, [product, form]);
+
+    const onFinish = (values: Partial<Product>) => {
+        mutate(values);
+    };
+
+    if (isLoading) return <Spin className="flex top-90 left-90" />;
 
     return (
         <div className="p-6">
-            <a onClick={() => navigate(`/products`)} className="nav font-medium flex gap-3">
+            <a onClick={() => navigate(`/products`)} className="cursor-pointer font-medium flex gap-3">
                 <ArrowLeft />
                 Back to Products
             </a>
-            <div className="heading">
-                <h1 className="text-3xl py-6 font-bold border-gray-200 border-b">Edit Product</h1>
-            </div>
-            <div className="inputs flex gap-17 justify-between">
-                <div className="left-side w-full">
-                    <div className="my-6">
-                        <label htmlFor="username" className="block text-lg font-medium text-gray-700 mb-1">
-                            Title*
-                        </label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder="Enter product title"
-                        />
-                    </div>
-                    <div className="my-6">
-                        <label htmlFor="username" className="block text-lg font-medium text-gray-700 mb-1">
-                            Price*
-                        </label>
-                        <input
-                            type="number"
-                            id="username"
-                            name="username"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder="0.00"
-                        />
-                    </div>
-                    <div className="my-6">
-                        <label htmlFor="username" className="block text-lg font-medium text-gray-700 mb-1">
-                            Category*
-                        </label>
-                        <Dropdown menu={{ items }}>
-                            <a
-                                className="flex items-center text-sm justify-between border border-gray-300 px-3 py-2  shadow-sm rounded-md cursor-pointer"
-                                onClick={(e) => e.preventDefault()}
-                            >
+            <h1 className="text-3xl font-bold w-lvh py-5 mb-5 border-b border-gray-200">Add Product</h1>
 
-                                <span className="text-gray-500">Select category</span>
-                                <DownOutlined />
-                            </a>
-                        </Dropdown>
-                    </div>
-                    <div className="my-6">
-                        <label htmlFor="username" className="block text-lg font-medium text-gray-700 mb-1">
-                            Brand
-                        </label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder="Enter brand"
-                        />
-                    </div>
-                    <div className="my-6">
-                        <label htmlFor="username" className="block text-lg font-medium text-gray-700 mb-1">
-                            Stock*
-                        </label>
-                        <input
-                            type="number"
-                            id="username"
-                            name="username"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder="Enter stock quantity"
-                        />
+            <Form form={form} className='grid grid-cols-2 gap-6' layout="vertical" onFinish={onFinish}>
+                <div className="col-span-1">
+                    <Form.Item
+                        label="Title"
+                        name="title"
+                        rules={[{ required: true, message: 'Enter information!' }]}
+                    >
+                        <Input placeholder='Enter product title' allowClear maxLength={40} />
+                    </Form.Item>
+                    <Form.Item
+                        label="Price"
+                        name="price"
+                        rules={[{ required: true, message: 'Enter price!!' }]}
+                    >
+                        <InputNumber placeholder='0.00' style={{ width: '100%' }} min={0} maxLength={15} />
+                    </Form.Item>
+                    <Form.Item label="Category" name="category" rules={[{ required: true }]}>
+                        <Select placeholder="Select category" loading={!categories}>
+                            {categories?.map((cat) => (
+                                <Select key={cat.slug} value={cat.slug}>
+                                    {cat.name}
+                                </Select>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="Brand" name="brand">
+                        <Input placeholder='Enter brand' allowClear maxLength={40} />
+                    </Form.Item>
+                    <Form.Item label="Stock" name="stock" rules={[{ required: true }]}>
+                        <InputNumber placeholder='Enter stock quantity' style={{ width: '100%' }} min={0} maxLength={15} />
+                    </Form.Item>
+                </div>
+
+                <div className="col-span-1">
+                    <Form.Item label="Description" name="description">
+                        <Input.TextArea placeholder='Enter product description...' allowClear rows={6} />
+                    </Form.Item>
+                    <Form.Item label="Image" name="thumbnail">
+                        <Input placeholder='http://example.com/image.jpg' allowClear />
+                    </Form.Item>
+                    <div className="flex gap-3 mt-60 justify-end ">
+                        <button onClick={() => navigate(`/products`)} className="w-[90px]  border border-gray-300  rounded-md pt-1 justify-center cursor-pointer font-medium flex gap-3">
+                            Cancel
+                        </button>
+                        <Button type="primary" style={{ width: 130, fontWeight: 500, fontSize: 14 }} htmlType="submit" loading={isPending}>
+                            Save Product
+                        </Button>
                     </div>
                 </div>
-                <div className="right-side w-full">
-                    <div className="my-6">
-                        <label htmlFor="username" className="block text-lg font-medium text-gray-700 mb-1">
-                            Description
-                        </label>
-                        <textarea
-                            placeholder="Enter your description here..."
-                            rows={6}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                        </textarea>
-                    </div>
-                    <div className="my-6">
-                        <label htmlFor="username" className="block text-lg font-medium text-gray-700 mb-1">
-                            Image URL
-                        </label>
-                        <input
-                            type="url"
-                            id="username"
-                            name="username"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder="https://example-tbn0.gstatic.com/image.jpg"
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className="bottom-buttons mt-6 flex flex-wrap gap-4 absolute right-6">
-                <div className="cancel">
-                    <Button className="w-31" size={"large"} danger>
-                        Cancel
-                    </Button>
-                </div>
-                <div className="save">
-                    <Button size={"large"} type="primary">
-                        Save Product
-                    </Button>
-                </div>
-            </div>
+            </Form>
         </div>
-    )
-}
+    );
+};
 
-export default Edit
+export default AddOrEditProduct;

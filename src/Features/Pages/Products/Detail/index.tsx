@@ -21,7 +21,7 @@ const ProductDetail = () => {
     const { id } = useParams();
     const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
     const handleLoadMore = () => {
-        setVisibleCount((prevCount: any) => prevCount + product?.reviews.length);
+        setVisibleCount((prevCount: any) => prevCount + (product?.reviews?.length ?? 0));
     };
     const handleShowLess = () => {
         setVisibleCount(() => ITEMS_PER_PAGE);
@@ -47,14 +47,14 @@ const ProductDetail = () => {
             </a>
             <div className="details-body mt-8 flex flex-wrap justify-center item gap-16">
                 <div className="left-content flex flex-col">
-                    <img src={product.images[0]} alt={product.title} className="w-[516px] rounded-xl border border-gray-200 bg-[#f5f6f8]" />
+                    <img src={product.thumbnail ?? ""} alt={product.title} className="w-[516px] rounded-xl border border-gray-200 bg-[#f5f6f8]" />
                     <div className="gallery-container">
                         <LightGallery
                             speed={500}
                             plugins={[lgThumbnail, lgZoom]}
                             elementClassNames="flex gap-3 mt-3"
                         >
-                            {product.images.slice(0, 4).map((image, index) => (
+                            {(product.images ?? []).slice(0, 4).map((image, index) => (
                                 <a className="w-30 rounded-xl hover:border-blue-600 duration-300 border border-gray-200 bg-[#f5f6f8]"
                                     key={index} href={image} data-lg-size="">
                                     <img alt="Scenic View 1" src={image} className="" />
@@ -107,7 +107,7 @@ const ProductDetail = () => {
                             Reviews
                             <span className="text-gray-600 text-lg ml-2">({product.reviews?.length ?? 0})</span>
                         </h1>
-                        {product.reviews?.slice(0, visibleCount).map((review, index) => (
+                        {(product.reviews ?? []).slice(0, visibleCount).map((review, index) => (
                             <div key={index} className="review-card my-2 grid grid-cols-7 w-full border-2 border-gray-100 p-3 h-26 rounded-xl">
                                 <Avatar size={40}>
                                     {review.reviewerName?.charAt(0).toUpperCase()}
@@ -130,7 +130,7 @@ const ProductDetail = () => {
                                 </div>
                             </div>
                         ))}
-                        {visibleCount < product.reviews.length ? (
+                        {visibleCount < (product.reviews ?? []).length ? (
                             <button className="cursor-pointer mt-3 ml-auto font-medium flex gap-3 text-blue-600" onClick={handleLoadMore}>View all reviews<ArrowRight /></button>
                         )
                             : (

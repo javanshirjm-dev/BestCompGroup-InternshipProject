@@ -3,21 +3,25 @@ import { Star, Trash2, Ellipsis, Pencil } from "lucide-react"
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Modal, Space, Dropdown } from 'antd';
 import { useNavigate } from 'react-router';
+import { Popconfirm, Button } from 'antd';
+import useDeleteProduct from '../../hooks/useDeleteProduct';
 
 const { confirm } = Modal;
 
 const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product) => {
+    const { mutate } = useDeleteProduct();
+
     const navigate = useNavigate();
     const showDeleteConfirm = () => {
         confirm({
-            title: 'Delete product?',
+            title: 'Delete product',
             icon: <ExclamationCircleFilled />,
             content: 'This action cannot be undone.',
             okText: 'Delete',
             okType: 'danger',
             cancelText: 'Cancel',
             onOk() {
-                console.log('OK');
+                mutate(id)
             },
             onCancel() {
                 console.log('Cancel');
@@ -34,7 +38,7 @@ const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product)
                         menu={{
                             items: [
                                 {
-                                    label: 'Redakte et',
+                                    label: 'Edit',
                                     icon: <Pencil />,
                                     onClick: (e) => {
                                         e.domEvent.stopPropagation();

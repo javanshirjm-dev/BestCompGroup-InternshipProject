@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react"
+import { Plus, Search, X } from "lucide-react"
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from '@tanstack/react-query'
@@ -62,7 +62,7 @@ const HomePage = () => {
         <div className="flex-1 p-6">
             <section className="flex justify-between">
                 <div className="title">
-                    <h1 className="text-3xl font-bold">Products</h1>
+                    <h1 className="text-3xl font-bold mt-3">Products</h1>
                 </div>
                 <div className="addProduct">
                     <Button size={"large"} onClick={() => navigate(`/products/add`)} type="primary">
@@ -91,21 +91,33 @@ const HomePage = () => {
                             const selectedSortItem = sortList.find(sl => sl.value === props.value);
                             return selectedSortItem?.label || 'All Products'
                         }}
-                        style={{ width: 120 }}
+                        style={{
+                            width: 280,
+                            fontSize: 16,
+                            borderWidth: 2,
+                            borderStyle: "solid",
+                            borderColor: "#e5e7eb",
+                            paddingTop: 6,
+                            paddingBottom: 6,
+                            paddingLeft: 16,
+                            paddingRight: 16,
+                            borderRadius: 12,
+                        }}
                         onChange={(value, option) => handleSort(value, (option as Record<string, string>)?.order)}
                         options={sortList}
                         suffix={
                             searchParams.get('sortBy') ?
                                 <button onClick={(e) => {
                                     e.stopPropagation();
-
                                     setSearchParams(prev => {
                                         prev.delete('sortBy');
                                         prev.delete('order');
                                         return prev;
                                     })
                                 }}>
-                                    X
+                                    <X
+                                        className="text-gray-400 hover:text-red-500 hover:scale-125 transition-colors duration-200 cursor-pointer"
+                                        size={17} />
                                 </button>
                                 : null
                         }
