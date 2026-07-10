@@ -1,17 +1,22 @@
 import { useNavigate, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Form, Input, InputNumber, Button, Spin, Select } from 'antd';
+import { useForm } from "react-hook-form";
 import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import useUpdateProduct from '../../../hooks/useUpdateProduct';
+import useCreateProduct from '../../../hooks/useCreateProduct';
 import type { Product } from '../../../Types/Global';
-
 
 const AddOrEditProduct = () => {
     const navigate = useNavigate()
     const { id } = useParams();
     const [form] = Form.useForm();
-
+    var { mutate, isPending } = useUpdateProduct(id!);
+    var { mutate, isPending } = useCreateProduct();
+    const onFinish = (values: any) => {
+        mutate(values);
+    };
     const { data: product, isLoading } = useQuery<Product>({
         queryKey: ['product', id],
         queryFn: async () => {
@@ -21,7 +26,6 @@ const AddOrEditProduct = () => {
         },
         enabled: !!id
     });
-
     const { data: categories } = useQuery<{ slug: string; name: string }[]>({
         queryKey: ['categories'],
         queryFn: async () => {
@@ -30,17 +34,11 @@ const AddOrEditProduct = () => {
         },
     });
 
-    const { mutate, isPending } = useUpdateProduct(id!);
-
     useEffect(() => {
         if (product) {
             form.setFieldsValue(product);
         }
     }, [product, form]);
-
-    const onFinish = (values: Partial<Product>) => {
-        mutate(values);
-    };
 
     if (isLoading) return <Spin className="flex top-90 left-90" />;
 
