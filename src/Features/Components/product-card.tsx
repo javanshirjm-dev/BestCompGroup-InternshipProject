@@ -1,9 +1,8 @@
 import type { Product } from '../../Types/Global'
 import { Star, Trash2, Ellipsis, Pencil } from "lucide-react"
-import { ExclamationCircleFilled } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import { Modal, Space, Dropdown } from 'antd';
 import { useNavigate } from 'react-router';
-import { Popconfirm, Button } from 'antd';
 import useDeleteProduct from '../../hooks/useDeleteProduct';
 
 const { confirm } = Modal;
@@ -14,8 +13,8 @@ const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product)
     const navigate = useNavigate();
     const showDeleteConfirm = () => {
         confirm({
-            title: 'Delete product',
-            icon: <ExclamationCircleFilled />,
+            title: 'Delete product?',
+            icon: <DeleteOutlined style={{ color: 'red', backgroundColor: '#fededd', padding: '12px', borderRadius: '100%', marginRight: '22px' }} />,
             content: 'This action cannot be undone.',
             okText: 'Delete',
             okType: 'danger',
@@ -32,7 +31,7 @@ const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product)
     return (
         <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
             <div className="relative bg-[#f7f8f9] ">
-                <img className="w-full p-5 h-80 object-cover hover:scale-105 transition-transform duration-300 ease-in-out" src={thumbnail} alt={title} />
+                <img className="w-full p-6 h-80 object-cover hover:scale-105 transition-transform duration-300 ease-in-out" src={thumbnail} alt={title} />
                 <div className="absolute right-4 top-4">
                     <Dropdown
                         menu={{

@@ -33,7 +33,7 @@ const useCreateProduct = () => {
             // // yeni məhsulun detail cache-ini əvvəlcədən yaz (detail səhifəyə birbaşa keçəndə fetch etməsin)
             // queryClient.setQueryData(['product', data.id.toString()], data);
 
-            navigate(`/products`);
+            navigate(`/products/`);
         },
     });
 };

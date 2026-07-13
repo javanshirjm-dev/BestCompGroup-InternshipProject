@@ -2,7 +2,8 @@ import { Plus, Search, X } from "lucide-react"
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from '@tanstack/react-query'
-import { Empty, Spin, Select } from "antd";
+import { Empty, Spin, Select, Grid } from "antd";
+const { useBreakpoint } = Grid;
 import clsx from "clsx";
 import Pagination from "antd/es/pagination/Pagination"
 import Button from "antd/es/button"
@@ -24,6 +25,8 @@ const HomePage = () => {
     const currentPage = Number(searchParams.get('page')) || 1;
     const sortBy = searchParams.get('sortBy') || '';
     const order = searchParams.get('order') || '';
+    const screens = useBreakpoint();
+
 
     const { data: { products = [], total = 0 } = {}, isLoading, isFetching, isError } = useQuery<{
         products: Product[],
@@ -58,22 +61,24 @@ const HomePage = () => {
 
     if (isError) return <p>Something went wrong.</p>;
 
+
     return (
-        <div className="flex-1 p-6">
-            <section className="flex justify-between">
+        <div className="flex-1 p-6 pt-2 sm:pt-6">
+            <section className="flex justify-between items-center">
                 <div className="title">
-                    <h1 className="text-3xl font-bold mt-3">Products</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold mt-3 sm:mt-0">Products</h1>
                 </div>
-                <div className="addProduct">
-                    <Button size={"large"} onClick={() => navigate(`/products/add`)} type="primary">
+                <div className="mt-4 md:mt-0">
+                    <Button size={screens.md ? "large" : "medium"}
+                        onClick={() => navigate(`/products/add`)} type="primary">
                         <Plus className="w-5 h-5" />
                         Add Product
                     </Button>
                 </div>
             </section >
-            <section className="flex w-full mt-6 items-center gap-3">
-                <div className="flex-1 min-w-0">
-                    <div className="items-center  hover:scale-101 duration-200 flex border-2 border-gray-200 p-2 px-4 rounded-xl">
+            <section className="grid grid-cols-1 md:grid-cols-4 w-full mt-6 items-center gap-3">
+                <div className="min-w-0 col-span-1 md:col-span-3">
+                    <div className="items-center hover:scale-101 duration-200 flex border-2 border-gray-200 p-2 px-4 rounded-xl">
                         <Search className="mr-4 text-gray-400 h-5 w-5" />
                         <input
                             className="size-full focus:outline-none focus:ring-0 focus:ring-offset-0"
@@ -84,7 +89,7 @@ const HomePage = () => {
                         />
                     </div>
                 </div>
-                <div className="shrink-0">
+                <div className="shrink-0 col-span-1">
                     <Select
                         value={sortBy}
                         labelRender={(props) => {
@@ -92,7 +97,7 @@ const HomePage = () => {
                             return selectedSortItem?.label || 'All Products'
                         }}
                         style={{
-                            width: 280,
+                            width: '100%',
                             fontSize: 16,
                             borderWidth: 2,
                             borderStyle: "solid",
@@ -126,7 +131,7 @@ const HomePage = () => {
             </section>
             <Spin spinning={isLoading || isFetching}>
                 {products.length > 0 ? (
-                    <section className="grid-cols-1 lg:grid-cols-5 md:grid-cols-4 gap-5 mt-6 grid">
+                    <section className="grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 md:grid-cols-2 gap-5 mt-6 grid">
                         {products.map((product) => (
                             <ProductCard
                                 id={product.id}

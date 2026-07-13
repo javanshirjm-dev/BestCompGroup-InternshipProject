@@ -2,35 +2,40 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import type { Product } from '../Types/Global';
 
-const useUpdateProduct = (id: string) => {
+const useCreateProduct = (id: string) => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
     return useMutation({
-        mutationFn: async (updatedProduct: Partial<Product>) => {
-            const res = await fetch(`https://dummyjson.com/products/${id}`, {
-                method: 'PATCH',
+        mutationFn: async (newProduct: Partial<Product>) => {
+            const res = await fetch('https://dummyjson.com/products/add', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedProduct),
+                body: JSON.stringify(newProduct),
             });
 
-            if (!res.ok) throw new Error('Məhsul yenilənmədi!');
+            if (!res.ok) throw new Error('Məhsul əlavə olunmadı!');
             return res.json();
         },
-        // onSuccess: () => {
-        //     queryClient.invalidateQueries({ queryKey: ['products'] });
-        //     queryClient.invalidateQueries({ queryKey: ['product', id.toString()] });
-        //     navigate(`/products/${id}`);
-        // },
         onSuccess: (data) => {
-            // köhnə tam data-nın üzərinə yalnız dəyişən sahələri yaz
-            queryClient.setQueryData(['product', id], (old: Product | undefined) =>
-                old ? { ...old, ...data } : data
+
+            queryClient.setQueriesData(
+                { queryKey: ['products'] },
+                (old: { products: Product[]; total: number } | undefined) => {
+                    if (!old) return old;
+                    return {
+                        ...old,
+                        products: [data, ...old.products],
+                        total: old.total + 1,
+                    };
+                }
             );
 
-            navigate(`/products/${id}`);
+            queryClient.setQueryData(['product', data.id.toString()], data);
+
+            navigate(`/products/${data.id}`);
         },
     });
 };
 
-export default useUpdateProduct;
+export default useCreateProduct;

@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Form, Input, InputNumber, Button, Spin, Select } from 'antd';
-import { useForm } from "react-hook-form";
 import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
 import useUpdateProduct from '../../../hooks/useUpdateProduct';
@@ -14,6 +13,7 @@ const AddOrEditProduct = () => {
     const [form] = Form.useForm();
     var { mutate, isPending } = useUpdateProduct(id!);
     var { mutate, isPending } = useCreateProduct();
+
     const onFinish = (values: any) => {
         mutate(values);
     };
@@ -91,7 +91,7 @@ const AddOrEditProduct = () => {
                         <Input placeholder='http://example.com/image.jpg' allowClear />
                     </Form.Item>
                     <div className="flex gap-3 mt-60 justify-end ">
-                        <button onClick={() => navigate(`/products`)} className="w-[90px]  border border-gray-300  rounded-md pt-1 justify-center cursor-pointer font-medium flex gap-3">
+                        <button onClick={() => navigate(`/products`)} className="w-[90px] sm:px-0 px-9 border border-gray-300  rounded-md pt-1 justify-center cursor-pointer font-medium flex gap-3">
                             Cancel
                         </button>
                         <Button type="primary" style={{ width: 130, fontWeight: 500, fontSize: 14 }} htmlType="submit" loading={isPending}>

@@ -45,7 +45,7 @@ const ProductDetail = () => {
                 <ArrowLeft />
                 Back to Products
             </a>
-            <div className="details-body mt-8 flex flex-wrap justify-center item gap-16">
+            <div className="details-body mt-8 flex flex-wrap justify-center item gap-8 lg:gap-16">
                 <div className="left-content flex flex-col">
                     <img src={product.thumbnail ?? ""} alt={product.title} className="w-[516px] rounded-xl border border-gray-200 bg-[#f5f6f8]" />
                     <div className="gallery-container">
@@ -55,7 +55,7 @@ const ProductDetail = () => {
                             elementClassNames="flex gap-3 mt-3"
                         >
                             {(product.images ?? []).slice(0, 4).map((image, index) => (
-                                <a className="w-30 rounded-xl hover:border-blue-600 duration-300 border border-gray-200 bg-[#f5f6f8]"
+                                <a className="w-15 sm:w-30 rounded-xl hover:border-blue-600 duration-300 border border-gray-200 bg-[#f5f6f8]"
                                     key={index} href={image} data-lg-size="">
                                     <img alt="Scenic View 1" src={image} className="" />
                                 </a>
@@ -65,7 +65,7 @@ const ProductDetail = () => {
                 </div>
 
                 <div className="right-content">
-                    <h1 className="text-4xl font-bold">{product.title}</h1>
+                    <h1 className="text-3xl sm:text-4xl font-bold">{product.title}</h1>
                     <a href="/products">
                         <h1 className="text-xl capitalize my-3 text-blue-600 font-medium">{product.category}</h1>
                     </a>
@@ -100,7 +100,7 @@ const ProductDetail = () => {
                     </div>
                     <div className="description-text py-4 my-4 border-t-2 border-b-2 border-gray-100">
                         <h1 className="text-xl mb-3 text-black font-bold">Description</h1>
-                        <p className="max-w-160">{product.description}</p>
+                        <p className="max-w-160 text-sm sm:text-base">{product.description}</p>
                     </div>
                     <div className="comments my-4 ">
                         <h1 className="text-xl mb-3 text-black font-bold">
@@ -109,18 +109,18 @@ const ProductDetail = () => {
                         </h1>
                         {(product.reviews ?? []).slice(0, visibleCount).map((review, index) => (
                             <div key={index} className="review-card my-2 grid grid-cols-7 w-full border-2 border-gray-100 p-3 h-26 rounded-xl">
-                                <Avatar size={40}>
+                                <Avatar size={45}>
                                     {review.reviewerName?.charAt(0).toUpperCase()}
                                 </Avatar>
-                                <div className="review-content col-span-4">
+                                <div className="review-content col-span-5 sm:col-span-4 ml-8 sm:ml-0">
                                     <h1 className="font-bold">{review.reviewerName}</h1>
                                     <div className="font-bold my-1 flex items-center gap-1">
                                         <Rate allowHalf size="small" disabled value={review.rating} />
                                     </div>
-                                    <p className="text-gray-600">{review.comment}</p>
+                                    <p className="text-gray-600 text-sm sm:text-base">{review.comment}</p>
                                 </div>
-                                <div className="revies-date col-span-2 ml-auto">
-                                    <p className="text-gray-600 text-sm ">
+                                <div className="revies-date col-span-1 sm:col-span-2 ml-auto">
+                                    <p className="text-gray-600 text-xs sm:text-sm">
                                         {new Date(review.date).toLocaleDateString("en-US", {
                                             day: "numeric",
                                             month: "long",
