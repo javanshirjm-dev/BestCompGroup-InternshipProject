@@ -131,7 +131,7 @@ const HomePage = () => {
             </section>
             <Spin spinning={isLoading || isFetching}>
                 {products.length > 0 ? (
-                    <section className="grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 md:grid-cols-2 gap-5 mt-6 grid">
+                    <section className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5  gap-5 mt-6 grid">
                         {products.map((product) => (
                             <ProductCard
                                 id={product.id}

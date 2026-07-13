@@ -2,40 +2,31 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import type { Product } from '../Types/Global';
 
-const useCreateProduct = (id: string) => {
+const useUpdateProduct = (id: string) => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
     return useMutation({
-        mutationFn: async (newProduct: Partial<Product>) => {
-            const res = await fetch('https://dummyjson.com/products/add', {
-                method: 'POST',
+        mutationFn: async (updatedProduct: Partial<Product>) => {
+            const res = await fetch(`https://dummyjson.com/products/${id}`, {
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newProduct),
+                body: JSON.stringify(updatedProduct),
             });
 
-            if (!res.ok) throw new Error('Məhsul əlavə olunmadı!');
+            if (!res.ok) throw new Error('Məhsul yenilenmir');
             return res.json();
         },
         onSuccess: (data) => {
+            console.log('bura isliyir', data);
 
-            queryClient.setQueriesData(
-                { queryKey: ['products'] },
-                (old: { products: Product[]; total: number } | undefined) => {
-                    if (!old) return old;
-                    return {
-                        ...old,
-                        products: [data, ...old.products],
-                        total: old.total + 1,
-                    };
-                }
+            queryClient.setQueryData(['product', id], (old: Product | undefined) =>
+                old ? { ...old, ...data } : data
             );
 
-            queryClient.setQueryData(['product', data.id.toString()], data);
-
-            navigate(`/products/${data.id}`);
+            navigate(`/products/${id}`);
         },
     });
 };
 
-export default useCreateProduct;
+export default useUpdateProduct;
