@@ -11,7 +11,7 @@ import ProductCard from "../../Components/product-card"
 import useDebounce from "../../../hooks/useDebounce";
 import type { Product } from "../../../Types/Global";
 
-const limit = 15;
+const limit = 10;
 const sortList = [
     { value: 'title', label: 'Sort by Title', order: 'asc' },
     { value: 'price', label: 'Sort by Price', order: 'desc' },

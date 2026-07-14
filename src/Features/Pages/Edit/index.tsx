@@ -3,16 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Form, Input, InputNumber, Button, Spin, Select } from 'antd';
 import { ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
-import useUpdateProduct from '../../../hooks/useUpdateProduct';
-import useCreateProduct from '../../../hooks/useCreateProduct';
+import useEditingProduct from '../../../hooks/useEditingProduct';
 import type { Product } from '../../../Types/Global';
 
 const AddOrEditProduct = () => {
     const navigate = useNavigate()
     const { id } = useParams();
     const [form] = Form.useForm();
-    var { mutate, isPending } = useUpdateProduct(id!);
-    var { mutate, isPending } = useCreateProduct();
+    const { mutate, isPending } = useEditingProduct();
 
     const onFinish = (values: any) => {
         mutate(values);

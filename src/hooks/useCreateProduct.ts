@@ -17,23 +17,10 @@ const useCreateProduct = () => {
             if (!res.ok) throw new Error('Məhsul əlavə olunmadı!');
             return res.json();
         },
+
         onSuccess: (data) => {
-            queryClient.setQueriesData(
-                { queryKey: ['products'] },
-                (old: { products: Product[]; total: number } | undefined) => {
-                    if (!old) return old;
-                    return {
-                        ...old,
-                        products: [data, ...old.products],
-                        total: old.total + 1,
-                    };
-                }
-            );
-
-            // // yeni məhsulun detail cache-ini əvvəlcədən yaz (detail səhifəyə birbaşa keçəndə fetch etməsin)
-            // queryClient.setQueryData(['product', data.id.toString()], data);
-
-            navigate(`/products/`);
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+            navigate(`/products/${data.id}`);
         },
     });
 };

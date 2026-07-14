@@ -15,20 +15,8 @@ const useDeleteProduct = () => {
             return res.json();
         },
         onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
             queryClient.removeQueries({ queryKey: ['product', id.toString()] });
-
-            queryClient.setQueriesData(
-                { queryKey: ['products'] },
-                (old: { products: any[]; total: number } | undefined) => {
-                    if (!old) return old;
-                    return {
-                        ...old,
-                        products: old.products.filter((p) => p.id !== id),
-                        total: old.total - 1,
-                    };
-                }
-            );
-
             navigate('/products');
         },
     });
