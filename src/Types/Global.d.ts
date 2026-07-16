@@ -1,3 +1,4 @@
+import { Resolver } from './../../node_modules/@hookform/resolvers/ata-validator/dist/types.d';
 export type NavbarItems = {
     id: number;
     path: string;
@@ -30,3 +31,7 @@ export interface Product {
     availabilityStatus: string;
     description: string;
 }
+
+export type TProductRequest = Pick<Product, 'title' | 'price' | 'category' | 'brand' | 'stock' | 'description' | 'thumbnail'> & {
+    id?: number;
+};
