@@ -1,5 +1,5 @@
 
-const ShopPage = () => {
+const DashboardPage = () => {
     return (
         <div className="flex-1 p-5 px-10 ml-20">
             <h1>Shop</h1>
@@ -7,4 +7,4 @@ const ShopPage = () => {
     )
 }
 
-export default ShopPage
+export default DashboardPage

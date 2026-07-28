@@ -6,11 +6,16 @@ export const NavbarItem = [
     },
     {
         id: 2,
-        path: "/shop",
+        path: "/dashboard",
         icon: "layoutgrid"
     },
     {
         id: 3,
+        path: "/discount",
+        icon: "discount"
+    },
+    {
+        id: 4,
         path: "/settings",
         icon: "settings"
     }

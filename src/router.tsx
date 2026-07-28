@@ -1,7 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import Layout from "./Layout";
 import Home from "./Features/Pages/Products";
-import Shop from "./Features/Pages/Shop";
+import Dashboard from "./Features/Pages/Dashboard";
+import Discount from "./Features/Pages/Discount";
 import Settings from "./Features/Pages/Settings";
 import Edit from "./Features/Pages/Edit";
 import ProductDetail from "./Features/Pages/Products/Detail"
@@ -18,8 +19,12 @@ export const router = createBrowserRouter([
                 element: < Home />,
             },
             {
-                path: "/shop",
-                element: <Shop />,
+                path: "/dashboard",
+                element: <Dashboard />,
+            },
+            {
+                path: "/discount",
+                element: <Discount />,
             },
             {
                 path: "/settings",

@@ -1,4 +1,3 @@
-import { Resolver } from './../../node_modules/@hookform/resolvers/ata-validator/dist/types.d';
 export type NavbarItems = {
     id: number;
     path: string;
@@ -14,24 +13,33 @@ export interface Review {
     reviewerName: string;
 }
 
+export interface ProductImage {
+    id?: number;
+    url?: string;
+    isMain?: boolean;
+    tempId?: string;
+    isUploading?: boolean;
+}
+
+
 export interface Product {
     id: number;
     title: string;
-    category: string;
+    categoryId: number;
+    categoryName: string;
     price: number;
     brand: string;
     sku: string;
     reviews: Review[];
-    stock: number;
-    thumbnail: string;
+    quantity: number;
+    images: ProductImage[];
     warrantyInformation: string;
     discountPercentage: number;
     rating: number;
-    images: string[];
     availabilityStatus: string;
     description: string;
 }
 
-export type TProductRequest = Pick<Product, 'title' | 'price' | 'category' | 'brand' | 'stock' | 'description' | 'thumbnail'> & {
+export type TProductRequest = Pick<Product, 'title' | 'price' | 'categoryId' | 'brand' | 'quantity' | 'description' | 'images'> & {
     id?: number;
 };

@@ -3,13 +3,13 @@ import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from '@tanstack/react-query'
 import { Empty, Spin, Select, Grid } from "antd";
-const { useBreakpoint } = Grid;
 import clsx from "clsx";
 import Pagination from "antd/es/pagination/Pagination"
 import Button from "antd/es/button"
 import ProductCard from "../../Components/product-card"
 import useDebounce from "../../../hooks/useDebounce";
 import type { Product } from "../../../Types/Global";
+const { useBreakpoint } = Grid;
 
 const limit = 10;
 const sortList = [
@@ -36,9 +36,11 @@ const HomePage = () => {
         queryFn: async () => {
             const skip = (currentPage - 1) * limit;
             const sortParams = sortBy ? `&sortBy=${sortBy}&order=${order}` : '';
+            //?sortBy= yazb yoxlamq
             const endpoint = debouncedSearch
                 ? `https://dummyjson.com/products/search?q=${debouncedSearch}&skip=${skip}&limit=${limit}${sortParams}`
-                : `https://dummyjson.com/products?skip=${skip}&limit=${limit}${sortParams}`;
+                : `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/with-images/${skip}/${limit}${sortParams}`;
+
             const res = await fetch(endpoint);
             if (!res.ok) throw new Error("Məlumat gəlmədi!");
             return res.json();
@@ -143,11 +145,11 @@ const HomePage = () => {
                                 brand={product.brand}
                                 warrantyInformation={product.warrantyInformation}
                                 sku={product.sku}
-                                stock={product.stock}
-                                category={product.category}
+                                quantity={product.quantity}
+                                categoryName={product.categoryName}
+                                categoryId={product.categoryId}
                                 availabilityStatus={product.availabilityStatus}
                                 discountPercentage={product.discountPercentage}
-                                thumbnail={product.thumbnail}
                                 price={product.price}
                                 description={product.description}
                             />

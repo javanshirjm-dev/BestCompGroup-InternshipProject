@@ -7,9 +7,8 @@ import useDeleteProduct from '../../hooks/useDeleteProduct';
 
 const { confirm } = Modal;
 
-const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product) => {
+const ProductCard = ({ id, title, price, images, categoryName, rating }: Product) => {
     const { mutate } = useDeleteProduct();
-
     const navigate = useNavigate();
     const showDeleteConfirm = () => {
         confirm({
@@ -27,12 +26,17 @@ const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product)
             },
         });
     };
+    const mainImage = images?.find((img) => img.isMain);
 
     return (
         <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
             <div className="relative bg-[#f7f8f9] ">
-                <img className="w-full p-6 h-80 object-cover hover:scale-105 transition-transform duration-300 ease-in-out" src={thumbnail} alt={title} />
-                <div className="absolute right-4 top-4">
+                <img
+                    className="w-full h-80 rounded-xl overflow-hidden object-cover hover:scale-98 transition-transform duration-300 ease-in-out"
+                    src={mainImage?.url}
+                    alt={title}
+                />
+                <div className=" absolute right-4 top-4">
                     <Dropdown
                         menu={{
                             items: [
@@ -60,7 +64,7 @@ const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product)
                         trigger={['click']}>
                         <a onClick={(e) => { e.stopPropagation(); }}>
                             <Space>
-                                <Ellipsis />
+                                <Ellipsis className='text-black rounded-lg  hover:scale-130  duration-200' />
                             </Space>
                         </a>
                     </Dropdown>
@@ -68,7 +72,7 @@ const ProductCard = ({ id, title, price, thumbnail, category, rating }: Product)
             </div>
             <div className="card-body p-5 hover:scale-99 duration-200">
                 <h1 className="text-lg text-black font-medium line-clamp-1">{title}</h1>
-                <p className="text-[16px] font-medium text-[#58616e] my-1 capitalize line-clamp-1">{category}</p>
+                <p className="text-[16px] font-medium text-[#58616e] my-1 capitalize line-clamp-1">{categoryName}</p>
                 <div className="card-bottom mt-4 flex justify-between items-center">
                     <h1 className="text-yellow-500 flex items-center gap-1 font-medium">
                         <Star className="w-4 h-4" fill="#fdc700" color="#fdc700" strokeWidth={3} />

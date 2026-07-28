@@ -15,7 +15,6 @@ import lgZoom from 'lightgallery/plugins/zoom';
 import type { Product } from "../../../../Types/Global";
 
 const ITEMS_PER_PAGE = 2;
-
 const ProductDetail = () => {
     const navigate = useNavigate()
     const { id } = useParams();
@@ -29,7 +28,7 @@ const ProductDetail = () => {
     const { data: product, isLoading, isError } = useQuery<Product>({
         queryKey: ['product', id],
         queryFn: async () => {
-            const res = await fetch(`https://dummyjson.com/products/${id}`);
+            const res = await fetch(`https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id}/with-images`);
             if (!res.ok) throw new Error("Məhsul tapılmadı!");
 
             return res.json();
@@ -39,6 +38,9 @@ const ProductDetail = () => {
     if (isLoading) return <div className="flex justify-center items-center mt-40">< Spin /></div>;
     if (isError || !product) return <p>Məhsul tapılmadı.</p>;
 
+    const mainImage = product.images?.find((img) => img.isMain);
+    const otherImages = product.images ?? [];
+
     return (
         <div className="p-6">
             <a onClick={() => navigate(`/products`)} className="cursor-pointer font-medium flex gap-3">
@@ -47,17 +49,21 @@ const ProductDetail = () => {
             </a>
             <div className="details-body mt-8 flex flex-wrap justify-center item gap-8 lg:gap-16">
                 <div className="left-content flex flex-col">
-                    <img src={product.thumbnail ?? ""} alt={product.title} className="w-[516px] rounded-xl border border-gray-200 bg-[#f5f6f8]" />
+                    <img
+                        src={mainImage?.url}
+                        alt={product.title}
+                        className="w-[516px] rounded-xl border border-gray-200 bg-[#f5f6f8]"
+                    />
                     <div className="gallery-container">
                         <LightGallery
                             speed={500}
                             plugins={[lgThumbnail, lgZoom]}
                             elementClassNames="flex gap-3 mt-3"
                         >
-                            {(product.images ?? []).slice(0, 4).map((image, index) => (
-                                <a className="w-15 sm:w-30 rounded-xl hover:border-blue-600 duration-300 border border-gray-200 bg-[#f5f6f8]"
-                                    key={index} href={image} data-lg-size="">
-                                    <img alt="Scenic View 1" src={image} className="" />
+                            {otherImages.slice(0, 4).map((image, index) => (
+                                <a className="w-15 sm:w-30 h-30 overflow-hidden rounded-xl border-2 hover:border-blue-600 duration-300  border-gray-200 bg-[#f5f6f8]"
+                                    key={index} href={image.url} data-lg-size="">
+                                    <img alt="Scenic View 1" src={image.url} className="w-full h-full object-cover" />
                                 </a>
                             ))}
                         </LightGallery>
@@ -67,7 +73,7 @@ const ProductDetail = () => {
                 <div className="right-content">
                     <h1 className="text-3xl sm:text-4xl font-bold">{product.title}</h1>
                     <a href="/products">
-                        <h1 className="text-xl capitalize my-3 text-blue-600 font-medium">{product.category}</h1>
+                        <h1 className="text-xl capitalize my-3 text-blue-600 font-medium">{product.categoryName}</h1>
                     </a>
                     <div className="card-bottom  flex justify-between items-center">
                         <h1 className="text-yellow-500 flex items-center gap-1 font-medium">
@@ -91,11 +97,11 @@ const ProductDetail = () => {
                             <h1>Warranty</h1>
                         </div>
                         <div className="value-spec font-medium text-gray-600 flex flex-col gap-1">
-                            <p>{product.brand}</p>
-                            <p>{product.sku}</p>
-                            <p>{product.stock}</p>
+                            <p>{product.brand || "daxil edilmeyib"}</p>
+                            <p>{product.sku || "daxil edilmeyib"}</p>
+                            <p>{product.quantity || "daxil edilmeyib"}</p>
                             <p>{Math.round(product.discountPercentage)} %</p>
-                            <p>{product.warrantyInformation}</p>
+                            <p>{product.warrantyInformation || "daxil edilmeyib"}</p>
                         </div>
                     </div>
                     <div className="description-text py-4 my-4 border-t-2 border-b-2 border-gray-100">
