@@ -26,14 +26,13 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
             },
         });
     };
-    const mainImage = images?.find((img) => img.isMain);
-
+    console.log(images.length)
     return (
-        <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
+        <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer hover:shadow-2xl  duration-300 rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
             <div className="relative bg-[#f7f8f9] ">
                 <img
-                    className="w-full h-80 rounded-xl overflow-hidden object-cover hover:scale-98 transition-transform duration-300 ease-in-out"
-                    src={mainImage?.url}
+                    className="w-full h-75  object-cover"
+                    src={images[0]?.url || "https://hotmodagency.com/wp-content/uploads/2022/08/placeholder-1-1.jpeg"}
                     alt={title}
                 />
                 <div className=" absolute right-4 top-4">
@@ -64,13 +63,13 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
                         trigger={['click']}>
                         <a onClick={(e) => { e.stopPropagation(); }}>
                             <Space>
-                                <Ellipsis className='text-black rounded-lg  hover:scale-130  duration-200' />
+                                <Ellipsis className='text-gray-900 rounded-lg  hover:scale-130  duration-200' />
                             </Space>
                         </a>
                     </Dropdown>
                 </div>
             </div>
-            <div className="card-body p-5 hover:scale-99 duration-200">
+            <div className="card-body p-5">
                 <h1 className="text-lg text-black font-medium line-clamp-1">{title}</h1>
                 <p className="text-[16px] font-medium text-[#58616e] my-1 capitalize line-clamp-1">{categoryName}</p>
                 <div className="card-bottom mt-4 flex justify-between items-center">
@@ -79,7 +78,7 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
                         {rating}
                     </h1>
                     <h1 className="font-medium text-black text-[16px]">
-                        ${price}
+                        ${price.toLocaleString()}
                     </h1>
                 </div>
             </div>

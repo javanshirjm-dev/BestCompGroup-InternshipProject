@@ -1,4 +1,4 @@
-import { Plus, Search, X } from "lucide-react"
+import { Plus, Search, X, User, LogOut } from "lucide-react"
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router";
 import { useQuery } from '@tanstack/react-query'
@@ -13,8 +13,11 @@ const { useBreakpoint } = Grid;
 
 const limit = 10;
 const sortList = [
-    { value: 'title', label: 'Sort by Title', order: 'asc' },
-    { value: 'price', label: 'Sort by Price', order: 'desc' },
+    { value: '1', label: 'Price: Low to High', order: 'Asc' },
+    { value: '2', label: 'Price: High to Low', order: 'Desc' },
+    { value: '3', label: 'Sort by Title ↑', order: 'Asc' },
+    { value: '4', label: 'Sort by Title ↓', order: 'Desc' },
+    { value: '5', label: 'Sort by Rating', order: 'Desc' },
 ];
 
 const HomePage = () => {
@@ -35,11 +38,11 @@ const HomePage = () => {
         queryKey: ['products', debouncedSearch, currentPage, sortBy, order],
         queryFn: async () => {
             const skip = (currentPage - 1) * limit;
-            const sortParams = sortBy ? `&sortBy=${sortBy}&order=${order}` : '';
+            const sortParams = sortBy ? `&SortBy=${sortBy}&order=${order}` : '';
             //?sortBy= yazb yoxlamq
             const endpoint = debouncedSearch
-                ? `https://dummyjson.com/products/search?q=${debouncedSearch}&skip=${skip}&limit=${limit}${sortParams}`
-                : `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/with-images/${skip}/${limit}${sortParams}`;
+                ? `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/with-images?Limit=${limit}&Skip=${skip}&Search=${debouncedSearch}${sortParams}`
+                : `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/with-images?Limit=${limit}&Skip=${skip}${sortParams}`;
 
             const res = await fetch(endpoint);
             if (!res.ok) throw new Error("Məlumat gəlmədi!");
@@ -70,7 +73,15 @@ const HomePage = () => {
                 <div className="title">
                     <h1 className="text-2xl sm:text-3xl font-bold mt-3 sm:mt-0">Products</h1>
                 </div>
-                <div className="mt-4 md:mt-0">
+                <div className="mt-4 md:mt-0 flex justify-center items-center gap-3">
+                    <Button danger size={screens.md ? "large" : "medium"}>
+                        <LogOut />
+                    </Button>
+                    <Button size={screens.md ? "large" : "medium"}
+                        onClick={() => navigate(`/login`)} type="primary">
+                        <User />
+                    </Button>
+
                     <Button size={screens.md ? "large" : "medium"}
                         onClick={() => navigate(`/products/add`)} type="primary">
                         <Plus className="w-5 h-5" />
@@ -148,7 +159,7 @@ const HomePage = () => {
                                 quantity={product.quantity}
                                 categoryName={product.categoryName}
                                 categoryId={product.categoryId}
-                                availabilityStatus={product.availabilityStatus}
+                                isAvailable={product.isAvailable}
                                 discountPercentage={product.discountPercentage}
                                 price={product.price}
                                 description={product.description}

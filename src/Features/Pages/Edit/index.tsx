@@ -69,12 +69,11 @@ const AddOrEditProduct = () => {
             coverImageId?: number;
         }) => {
             const res = await fetch(
-                `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id ? `/${id}` : ''}/with-images`,
-                {
-                    method: id ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body),
-                }
+                `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id ? `/${id}` : ''}/with-images`, {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            }
             );
 
             if (!res.ok) throw new Error('Xəta baş verdi');
@@ -235,7 +234,7 @@ const AddOrEditProduct = () => {
                             render={({ field }) => (
                                 <input
                                     type="number"
-                                    value={field.value || ""}
+                                    value={field.value}
                                     onChange={(e) => field.onChange(e.target.value === '' ? '' : Number(e.target.value))}
                                     onBlur={field.onBlur}
                                     ref={field.ref}
@@ -272,7 +271,11 @@ const AddOrEditProduct = () => {
                             name="images"
                             control={control}
                             render={({ field }) => {
-                                return <ThumbnailDropzone value={field.value} onChange={field.onChange} />
+                                return <ThumbnailDropzone
+                                    // key={product?.id}
+                                    value={product?.images ?? []}
+                                    onChange={field.onChange}
+                                />
                             }}
                         />
                         {errors.images && (
@@ -291,7 +294,7 @@ const AddOrEditProduct = () => {
                             type="button"
                             onClick={handleSubmit(onSubmit)}
                             disabled={isPendingAddOrUpdate}
-                            className="w-[130px] cursor-pointer bg-blue-700 text-white font-medium text-sm rounded-md py-2 disabled:opacity-50"
+                            className="w-[130px] cursor-pointer bg-blue-700 text-white font-medium text-sm rounded-md py-2 disabled:bg-red-700"
                         >
                             {isPendingAddOrUpdate ? 'Saving...' : 'Save Product'}
                         </button>

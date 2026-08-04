@@ -28,7 +28,7 @@ const ProductDetail = () => {
     const { data: product, isLoading, isError } = useQuery<Product>({
         queryKey: ['product', id],
         queryFn: async () => {
-            const res = await fetch(`https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id}/with-images`);
+            const res = await fetch(`https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id}/with-all-images`);
             if (!res.ok) throw new Error("Məhsul tapılmadı!");
 
             return res.json();
@@ -50,9 +50,9 @@ const ProductDetail = () => {
             <div className="details-body mt-8 flex flex-wrap justify-center item gap-8 lg:gap-16">
                 <div className="left-content flex flex-col">
                     <img
-                        src={mainImage?.url}
+                        src={mainImage?.url || "https://hotmodagency.com/wp-content/uploads/2022/08/placeholder-1-1.jpeg"}
                         alt={product.title}
-                        className="w-[516px] rounded-xl border border-gray-200 bg-[#f5f6f8]"
+                        className="w-141 rounded-xl border object-cover border-gray-200 bg-[#f5f6f8]"
                     />
                     <div className="gallery-container">
                         <LightGallery
@@ -61,7 +61,7 @@ const ProductDetail = () => {
                             elementClassNames="flex gap-3 mt-3"
                         >
                             {otherImages.slice(0, 4).map((image, index) => (
-                                <a className="w-15 sm:w-30 h-30 overflow-hidden rounded-xl border-2 hover:border-blue-600 duration-300  border-gray-200 bg-[#f5f6f8]"
+                                <a className="w-auto sm:w-33 h-30 overflow-hidden rounded-xl border-2 hover:border-blue-600 duration-300  border-gray-200 bg-[#f5f6f8]"
                                     key={index} href={image.url} data-lg-size="">
                                     <img alt="Scenic View 1" src={image.url} className="w-full h-full object-cover" />
                                 </a>
@@ -71,7 +71,7 @@ const ProductDetail = () => {
                 </div>
 
                 <div className="right-content">
-                    <h1 className="text-3xl sm:text-4xl font-bold">{product.title}</h1>
+                    <h1 className="text-3xl sm:text-4xl font-bold w-140 leading-11">{product.title}</h1>
                     <a href="/products">
                         <h1 className="text-xl capitalize my-3 text-blue-600 font-medium">{product.categoryName}</h1>
                     </a>
@@ -82,10 +82,15 @@ const ProductDetail = () => {
                             <span className="text-gray-600 ml-2">({product.reviews?.length ?? 0} reviews)</span>
                         </h1>
                     </div>
-                    <p className="text-2xl flex items-center my-3 font-bold">${product.price}
-                        <span className={clsx('rounded-2xl ml-4 text-sm p-1 px-3 bg-red-200 text-red-500', {
-                            'bg-[#e1efe6]! text-[#27bf5f]!': product.availabilityStatus === 'In Stock'
-                        })}>{product.availabilityStatus}
+                    <p className="text-2xl flex items-center my-3 font-bold">${product.price.toLocaleString()}
+                        <span
+                            className={clsx('rounded-2xl ml-4 text-sm p-1 px-3',
+                                {
+                                    'bg-[#e1efe6] text-[#27bf5f]': product.isAvailable,
+                                    'bg-red-200 text-red-500': !product.isAvailable,
+                                })}
+                        >
+                            {product.isAvailable ? 'Available' : 'Unavailable'}
                         </span>
                     </p>
                     <div className="spesifications flex gap-22">
@@ -97,16 +102,16 @@ const ProductDetail = () => {
                             <h1>Warranty</h1>
                         </div>
                         <div className="value-spec font-medium text-gray-600 flex flex-col gap-1">
-                            <p>{product.brand || "daxil edilmeyib"}</p>
-                            <p>{product.sku || "daxil edilmeyib"}</p>
-                            <p>{product.quantity || "daxil edilmeyib"}</p>
-                            <p>{Math.round(product.discountPercentage)} %</p>
-                            <p>{product.warrantyInformation || "daxil edilmeyib"}</p>
+                            <p>{product.brand || "no data"}</p>
+                            <p>{product.sku || "no data"}</p>
+                            <p>{product.quantity || "no data"}</p>
+                            <p>{Math.round(product.discountPercentage) || "no data"} %</p>
+                            <p>{product.warrantyInformation || "no data"}</p>
                         </div>
                     </div>
                     <div className="description-text py-4 my-4 border-t-2 border-b-2 border-gray-100">
                         <h1 className="text-xl mb-3 text-black font-bold">Description</h1>
-                        <p className="max-w-160 text-sm sm:text-base">{product.description}</p>
+                        <p className="w-140 text-sm sm:text-base">{product.description}</p>
                     </div>
                     <div className="comments my-4 ">
                         <h1 className="text-xl mb-3 text-black font-bold">
@@ -136,12 +141,24 @@ const ProductDetail = () => {
                                 </div>
                             </div>
                         ))}
-                        {visibleCount < (product.reviews ?? []).length ? (
-                            <button className="cursor-pointer mt-3 ml-auto font-medium flex gap-3 text-blue-600" onClick={handleLoadMore}>View all reviews<ArrowRight /></button>
-                        )
-                            : (
-                                <button className="cursor-pointer mt-3 ml-auto font-medium flex gap-3 text-red-950" onClick={handleShowLess}>Show less<ChevronUp /></button>
-                            )}
+                        {product.reviews?.length ?
+                            (
+                                visibleCount < (product.reviews ?? []).length ? (
+                                    <button
+                                        className="cursor-pointer mt-3 ml-auto font-medium flex gap-3 text-blue-600"
+                                        onClick={handleLoadMore}
+                                    >
+                                        View all reviews <ArrowRight />
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="cursor-pointer mt-3 ml-auto font-medium flex gap-3 text-red-950"
+                                        onClick={handleShowLess}
+                                    >
+                                        Show less <ChevronUp />
+                                    </button>
+                                )
+                            ) : "no comments"}
                     </div>
                 </div>
             </div>

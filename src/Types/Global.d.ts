@@ -36,7 +36,7 @@ export interface Product {
     warrantyInformation: string;
     discountPercentage: number;
     rating: number;
-    availabilityStatus: string;
+    isAvailable: boolean;
     description: string;
 }
 
