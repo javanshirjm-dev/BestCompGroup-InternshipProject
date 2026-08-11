@@ -31,7 +31,7 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
         <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer hover:shadow-2xl  duration-300 rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
             <div className="relative bg-[#f7f8f9] ">
                 <img
-                    className="w-full h-75  object-cover"
+                    className="w-full h-75 rounded-md object-cover"
                     src={images[0]?.url || "https://hotmodagency.com/wp-content/uploads/2022/08/placeholder-1-1.jpeg"}
                     alt={title}
                 />
@@ -63,7 +63,7 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
                         trigger={['click']}>
                         <a onClick={(e) => { e.stopPropagation(); }}>
                             <Space>
-                                <Ellipsis className='text-gray-900 rounded-lg  hover:scale-130  duration-200' />
+                                <Ellipsis className='text-gray-800 rounded-lg  hover:scale-130  duration-200' />
                             </Space>
                         </a>
                     </Dropdown>

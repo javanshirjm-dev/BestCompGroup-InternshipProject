@@ -13,6 +13,7 @@ import 'lightgallery/scss/lg-zoom.scss';
 import lgThumbnail from 'lightgallery/plugins/thumbnail';
 import lgZoom from 'lightgallery/plugins/zoom';
 import type { Product } from "../../../../Types/Global";
+import api from "../../../../api";
 
 const ITEMS_PER_PAGE = 2;
 const ProductDetail = () => {
@@ -28,10 +29,8 @@ const ProductDetail = () => {
     const { data: product, isLoading, isError } = useQuery<Product>({
         queryKey: ['product', id],
         queryFn: async () => {
-            const res = await fetch(`https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id}/with-all-images`);
-            if (!res.ok) throw new Error("Məhsul tapılmadı!");
-
-            return res.json();
+            const { data } = await api.get(`/Products/${id}/with-all-images`);
+            return data;
         },
     });
 

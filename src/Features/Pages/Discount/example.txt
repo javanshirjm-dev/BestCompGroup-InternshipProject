@@ -1,0 +1,51 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import api from "../../../api"
+
+interface Product {
+    id: number;
+    title: string;
+}
+interface ProductBig {
+    products: Product[];
+}
+
+
+function Discountpage() {
+
+    const queryClient = useQueryClient()
+
+    const { mutate: deleteProduct } = useMutation({
+        mutationFn: (id: number) => api.delete(`/Products/${id}`),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] })
+    })
+
+
+
+    const { data, isLoading, isError } = useQuery<ProductBig>
+        ({
+            queryKey: ['products'],
+            queryFn: async () => {
+                const { data } = await api.get('/Products/with-images')
+                console.log(data)
+                return data;
+            }
+        })
+
+    if (isLoading) return <p>loading...</p>
+    if (isError) return <p>xeta bas verdi</p>
+
+
+    return (
+        <div>
+            {data?.products.map((a) =>
+
+                <div className="">
+                    <h1>{a.title}</h1>
+                    <button onClick={() => deleteProduct(a.id)}>sil</button>
+                </div>
+            )}
+        </div>
+    )
+}
+
+export default Discountpage

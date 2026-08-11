@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { message } from 'antd';
+import api from '../api';
+
 
 const useDeleteProduct = () => {
     const queryClient = useQueryClient();
@@ -8,11 +10,8 @@ const useDeleteProduct = () => {
 
     return useMutation({
         mutationFn: async (id: number) => {
-            const res = await fetch(`https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id}`, {
-                method: 'DELETE',
+            const res = await api.delete(`/Products/${id}`, {
             });
-
-            if (!res.ok) throw new Error(`Failed to delete product: Status ${res.status}`);
             return "abi salam";
         },
         onSuccess: (_, id) => {

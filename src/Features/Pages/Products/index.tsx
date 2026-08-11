@@ -1,7 +1,7 @@
 import { Plus, Search, X, User, LogOut } from "lucide-react"
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router";
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Empty, Spin, Select, Grid } from "antd";
 import clsx from "clsx";
 import Pagination from "antd/es/pagination/Pagination"
@@ -9,6 +9,9 @@ import Button from "antd/es/button"
 import ProductCard from "../../Components/product-card"
 import useDebounce from "../../../hooks/useDebounce";
 import type { Product } from "../../../Types/Global";
+import api from "../../../api";
+
+
 const { useBreakpoint } = Grid;
 
 const limit = 10;
@@ -30,6 +33,19 @@ const HomePage = () => {
     const order = searchParams.get('order') || '';
     const screens = useBreakpoint();
 
+    const { mutate: logout } = useMutation({
+        mutationFn: () => api.post('/accounts/logout'),
+        onSuccess: () => {
+            localStorage.removeItem('token');
+            navigate('/login')
+        },
+        onError: () => {
+            localStorage.removeItem('token');
+            navigate('/login')
+
+        }
+    })
+
 
     const { data: { products = [], total = 0 } = {}, isLoading, isFetching, isError } = useQuery<{
         products: Product[],
@@ -38,15 +54,17 @@ const HomePage = () => {
         queryKey: ['products', debouncedSearch, currentPage, sortBy, order],
         queryFn: async () => {
             const skip = (currentPage - 1) * limit;
-            const sortParams = sortBy ? `&SortBy=${sortBy}&order=${order}` : '';
-            //?sortBy= yazb yoxlamq
-            const endpoint = debouncedSearch
-                ? `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/with-images?Limit=${limit}&Skip=${skip}&Search=${debouncedSearch}${sortParams}`
-                : `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/with-images?Limit=${limit}&Skip=${skip}${sortParams}`;
 
-            const res = await fetch(endpoint);
-            if (!res.ok) throw new Error("Məlumat gəlmədi!");
-            return res.json();
+            const { data } = await api.get('/Products/with-images', {
+                params: {
+                    Limit: limit,
+                    Skip: skip,
+                    ...(debouncedSearch && { Search: debouncedSearch }),
+                    ...(sortBy && { SortBy: sortBy, order }),
+                }
+            });
+
+            return data;
         },
     });
 
@@ -74,13 +92,12 @@ const HomePage = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold mt-3 sm:mt-0">Products</h1>
                 </div>
                 <div className="mt-4 md:mt-0 flex justify-center items-center gap-3">
-                    <Button danger size={screens.md ? "large" : "medium"}>
+                    <Button danger size={screens.md ? "large" : "medium"}
+                        onClick={() => logout()}
+                    >
                         <LogOut />
                     </Button>
-                    <Button size={screens.md ? "large" : "medium"}
-                        onClick={() => navigate(`/login`)} type="primary">
-                        <User />
-                    </Button>
+
 
                     <Button size={screens.md ? "large" : "medium"}
                         onClick={() => navigate(`/products/add`)} type="primary">

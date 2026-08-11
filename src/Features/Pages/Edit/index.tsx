@@ -7,6 +7,7 @@ import type { Product, TProductRequest } from '../../../Types/Global';
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ThumbnailDropzone from '../../Components/ThumbnailDropzone';
+import api from '../../../api';
 
 
 const productSchema = z.object({
@@ -43,18 +44,16 @@ const AddOrEditProduct = () => {
     const { data: product, isLoading } = useQuery<Product>({
         queryKey: ['product', id],
         queryFn: async () => {
-            const res = await fetch(`https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id}/with-all-images`);
-            if (!res.ok) throw new Error('Məhsul tapılmadı :(');
-            return res.json();
+            const { data } = await api.get(`/Products/${id}/with-all-images`);
+            return data;
         },
         enabled: isEditMode,
     });
     const { data: categories = [] } = useQuery<{ id: number; name: string }[]>({
         queryKey: ['categories'],
         queryFn: async () => {
-            const res = await fetch('https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/categories');
-            if (!res.ok) throw new Error('Kateqoriya tapılmadı :(');
-            return res.json();
+            const { data } = await api.get('/categories');
+            return data;
         },
     });
     const { mutate: addOrUpdateProduct, isPending: isPendingAddOrUpdate } = useMutation({
@@ -68,16 +67,11 @@ const AddOrEditProduct = () => {
             imageIds: number[];
             coverImageId?: number;
         }) => {
-            const res = await fetch(
-                `https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/Products/${id ? `/${id}` : ''}/with-images`, {
-                method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            }
-            );
+            const { data } = id
+                ? await api.put(`/Products/${id}/with-images`, body)
+                : await api.post(`/Products/with-images`, body);
 
-            if (!res.ok) throw new Error('Xəta baş verdi');
-            return res.json();
+            return data;
         },
     });
 
@@ -294,7 +288,7 @@ const AddOrEditProduct = () => {
                             type="button"
                             onClick={handleSubmit(onSubmit)}
                             disabled={isPendingAddOrUpdate}
-                            className="w-[130px] cursor-pointer bg-blue-700 text-white font-medium text-sm rounded-md py-2 disabled:bg-red-700"
+                            className="w-[130px] cursor-pointer bg-blue-700 text-white font-medium text-sm rounded-md py-2 disabled:bg-blue-400"
                         >
                             {isPendingAddOrUpdate ? 'Saving...' : 'Save Product'}
                         </button>
