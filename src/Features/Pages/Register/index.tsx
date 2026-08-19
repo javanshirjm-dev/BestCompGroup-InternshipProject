@@ -5,10 +5,12 @@ import { useMutation } from '@tanstack/react-query';
 import message from "antd/es/message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import api from "../../../api";
 import { Modal } from 'antd';
 import { MailQuestionMark } from "lucide-react";
+import type { AxiosError } from "axios";
+import { useTimer } from "react-timer-hook";
 
 const registerSchema = z.object({
     name: z.string().min(1, "Name is required").max(255, { message: "Name must be at most 255 characters" }),
@@ -33,15 +35,22 @@ const userValues = {
 
 }
 
-
 function Register() {
+    const {
+        seconds,
+        minutes,
+        isRunning,
+        restart,
+        start,
+    } = useTimer({ expiryTimestamp: new Date(Date.now() + 30 * 1000), onExpire: () => console.warn('Timer expired!'), autoStart: false });
+
+
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const showModal = () => {
         setIsModalOpen(true);
     };
-
 
     const { mutateAsync: addUser, isPending: isPendingUser, isSuccess: isSuccessUser } = useMutation({
         mutationFn: async (body: {
@@ -57,12 +66,29 @@ function Register() {
         },
 
         onError: (err) => {
-            message.error(err.message || 'Couldnt register');
+            const error = err as AxiosError<{ title?: string }>;
+            message.error(error.response?.data?.title || "Code error");
+            navigate('/auth/login')
         },
         onSuccess: () => {
             showModal()
+            message.success('code sent!')
         },
     });
+
+    const { mutateAsync: resend, isPending: isPendingResend } = useMutation({
+        mutationFn: async (body: { email: string }) => {
+            await api.post('/accounts/resend-verification-email', body)
+        },
+        onSuccess: () => {
+            setIsModalOpen(true)
+            message.success('code sent!')
+        },
+        onError: (err) => {
+            const error = err as AxiosError<{ title?: string }>;
+            message.error(error.response?.data?.title || "Error");
+        }
+    })
 
     const { mutateAsync: addCode, isPending: isPendingCode } = useMutation({
         mutationFn: async (body: {
@@ -73,9 +99,7 @@ function Register() {
                 `/Accounts/verify-email`,
                 body
             );
-
             return data;
-
         },
 
         onError: (err) => {
@@ -83,7 +107,7 @@ function Register() {
         },
         onSuccess: () => {
             message.success('Verification successful');
-            navigate("/login");
+            navigate("/auth/login");
 
         },
     });
@@ -91,6 +115,7 @@ function Register() {
     const {
         handleSubmit,
         control,
+        getValues,
         formState: { errors },
     } = useForm<typeof userValues>({
         resolver: zodResolver(registerSchema),
@@ -119,18 +144,7 @@ function Register() {
         }
     };
 
-    const [timer, setTimer] = useState(30);
-    useEffect(() => {
-        if (!isModalOpen) return;
-        setTimer(30);
-        const interval = setInterval(() => {
-            setTimer((prev) => {
-                if (prev <= 1) { clearInterval(interval); return 0; }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [isModalOpen]);
+
 
     return (
         <div className="p-6">
@@ -141,7 +155,7 @@ function Register() {
                     onSubmit={isSuccessUser ? handleSubmit(onSubmitLast) : handleSubmit(onSubmit)}
                 >
                     <div className="isabey">
-                        <label className="block font-medium mb-1">Name*</label>
+                        <label className=" font-medium mb-1">Name*</label>
                         <Controller
                             name="name"
                             control={control}
@@ -159,7 +173,7 @@ function Register() {
                         )}
                     </div>
                     <div className="isabey">
-                        <label className="block font-medium mb-1">Surname*</label>
+                        <label className=" font-medium mb-1">Surname*</label>
                         <Controller
                             name="surname"
                             control={control}
@@ -177,7 +191,7 @@ function Register() {
                         )}
                     </div>
                     <div className="isabey">
-                        <label className="block font-medium mb-1">Email*</label>
+                        <label className=" font-medium mb-1">Email*</label>
                         <Controller
                             name="email"
                             control={control}
@@ -196,7 +210,7 @@ function Register() {
                         )}
                     </div>
                     <div className="isabey">
-                        <label className="block font-medium mb-1">Password*</label>
+                        <label className=" font-medium mb-1">Password*</label>
                         <Controller
                             name="password"
                             control={control}
@@ -212,7 +226,7 @@ function Register() {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword((prev) => !prev)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                        className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-500"
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
@@ -230,19 +244,25 @@ function Register() {
                         width={300}
                         style={{ top: 130 }}
                         open={isModalOpen}
-                        footer={[
-                            timer > 0
-                                ? <p className="text-center text-gray-400 text-sm">Resend code in {timer}s</p>
-                                : <button
+                        afterOpenChange={(open) => {
+                            if (open) {
+                                start();
+                            }
+                        }}
+                        footer={
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '18px' }}>
+                                    <span>{minutes}</span>:<span>{seconds}</span>
+                                </div>
+                                <button disabled={isRunning} className="cursor-pointer disabled:cursor-default disabled:text-blue-200 text-blue-700"
                                     onClick={() => {
-                                        handleSubmit(onSubmit)();
-                                        setTimer(30);
-                                    }}
-                                    className="flex text-blue-700 m-auto cursor-pointer hover:underline duration-200"
-                                >
-                                    Resend code
-                                </button>
-                        ]}
+                                        const time = new Date();
+                                        time.setSeconds(time.getSeconds() + 30);
+                                        resend({ email: getValues('email') })
+                                        restart(time);
+                                    }}>Resend code</button>
+                            </div>
+                        }
                     >
                         <div className="my-4">
                             <div className="flex flex-col justify-center items-center">
@@ -275,7 +295,7 @@ function Register() {
                             onClick={handleSubmit(onSubmitLast)}
                             className="cursor-pointer hover:shadow-xl duration-200 w-full bg-black  disabled:bg-gray-400 text-white font-medium text-sm rounded-md py-2"
                         >
-                            {isPendingCode ? "Please wait..." : "Complete"}
+                            {isPendingCode || isPendingResend ? "Please wait..." : "Complete"}
 
                         </button>
                     </Modal>
@@ -291,7 +311,7 @@ function Register() {
                     </button>
 
 
-                    <a onClick={() => navigate("/login")} className="cursor-pointer text-blue-600 flex justify-center gap-3">
+                    <a onClick={() => navigate("/auth/login")} className="cursor-pointer  text-blue-700 flex justify-center ">
                         Already have an account?
                     </a>
                 </form>

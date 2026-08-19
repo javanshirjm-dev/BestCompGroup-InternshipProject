@@ -1,25 +1,26 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { Star, ArrowLeft, ArrowRight, ChevronUp } from "lucide-react"
-import { Spin, Rate, Avatar } from 'antd';
-import LightGallery from 'lightgallery/react';
-import 'lightgallery/css/lightgallery.css';
-import 'lightgallery/css/lg-zoom.css';
-import 'lightgallery/css/lg-thumbnail.css';
-import 'lightgallery/scss/lightgallery.scss';
-import 'lightgallery/scss/lg-zoom.scss';
-import lgThumbnail from 'lightgallery/plugins/thumbnail';
-import lgZoom from 'lightgallery/plugins/zoom';
+import { Spin, Rate, Avatar, Modal } from 'antd';
 import type { Product } from "../../../../Types/Global";
 import api from "../../../../api";
+
+import ImageGallery, { type ImageGalleryRef } from "react-image-gallery";
+import "react-image-gallery/styles/image-gallery.css";
 
 const ITEMS_PER_PAGE = 2;
 const ProductDetail = () => {
     const navigate = useNavigate()
     const { id } = useParams();
-    const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+
+    const galleryRef = useRef<ImageGalleryRef>(null);
+
+    const [isOpenGallery, setIsOpenGallery] = useState<boolean>(false);
+    const [visibleCount, setVisibleCount] = useState<number>(ITEMS_PER_PAGE);
+    const [mainImg, setMainImg] = useState<string>('');
+
     const handleLoadMore = () => {
         setVisibleCount((prevCount: any) => prevCount + (product?.reviews?.length ?? 0));
     };
@@ -30,15 +31,18 @@ const ProductDetail = () => {
         queryKey: ['product', id],
         queryFn: async () => {
             const { data } = await api.get(`/Products/${id}/with-all-images`);
+            setMainImg(data.images[0].url);
             return data;
         },
     });
 
+
     if (isLoading) return <div className="flex justify-center items-center mt-40">< Spin /></div>;
     if (isError || !product) return <p>Məhsul tapılmadı.</p>;
 
-    const mainImage = product.images?.find((img) => img.isMain);
+    // const mainImage = product.images?.find((img) => img.isMain);
     const otherImages = product.images ?? [];
+
 
     return (
         <div className="p-6">
@@ -48,24 +52,17 @@ const ProductDetail = () => {
             </a>
             <div className="details-body mt-8 flex flex-wrap justify-center item gap-8 lg:gap-16">
                 <div className="left-content flex flex-col">
-                    <img
-                        src={mainImage?.url || "https://hotmodagency.com/wp-content/uploads/2022/08/placeholder-1-1.jpeg"}
-                        alt={product.title}
-                        className="w-141 rounded-xl border object-cover border-gray-200 bg-[#f5f6f8]"
-                    />
-                    <div className="gallery-container">
-                        <LightGallery
-                            speed={500}
-                            plugins={[lgThumbnail, lgZoom]}
-                            elementClassNames="flex gap-3 mt-3"
-                        >
-                            {otherImages.slice(0, 4).map((image, index) => (
-                                <a className="w-auto sm:w-33 h-30 overflow-hidden rounded-xl border-2 hover:border-blue-600 duration-300  border-gray-200 bg-[#f5f6f8]"
-                                    key={index} href={image.url} data-lg-size="">
-                                    <img alt="Scenic View 1" src={image.url} className="w-full h-full object-cover" />
-                                </a>
-                            ))}
-                        </LightGallery>
+                    <button className="w-141 cursor-pointer rounded-xl border aspect-square overflow-hidden border-gray-200 bg-[#f5f6f8]"
+                        onClick={() => setIsOpenGallery(true)}>
+                        <img alt="Scenic View 1" src={mainImg} className="w-full h-full object-contain" />
+                    </button>
+                    <div className="flex justify-baseline gap-3 mt-3">
+                        {otherImages.slice(0, 4).map((image, index) => (
+                            <button className="w-auto cursor-pointer sm:w-33 h-30 overflow-hidden rounded-xl border-2 hover:border-blue-600 duration-300  border-gray-200 bg-[#f5f6f8]"
+                                key={index} onClick={() => setMainImg(image?.url ?? mainImg)}>
+                                <img alt="Scenic View 1" src={image.url} className="w-full h-full object-cover" />
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -161,7 +158,18 @@ const ProductDetail = () => {
                     </div>
                 </div>
             </div>
-        </div>
+            <Modal centered open={isOpenGallery} onCancel={() => setIsOpenGallery(false)} footer={null} className='size-full!'>
+                <ImageGallery
+                    ref={galleryRef}
+                    showFullscreenButton={false}
+                    showPlayButton={false}
+                    items={otherImages.map(img => ({
+                        original: img.url ?? "",
+                        // thumbnail: img.url,
+                    }))}
+                />
+            </Modal>
+        </div >
     );
 };
 

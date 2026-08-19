@@ -2,12 +2,13 @@ import { useNavigate } from "react-router";
 import { Eye, EyeOff, MailQuestionMark } from "lucide-react";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { message, Modal } from "antd";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import api from "../../../api";
 import { AxiosError } from "axios";
+import { useTimer } from 'react-timer-hook';
 
 const loginSchema = z.object({
     email: z.email().min(1, "Email is required").max(255, "Email must be at most 255 characters"),
@@ -29,22 +30,17 @@ const defaultValues: LoginFormData = {
 };
 
 function Login() {
+    const {
+        seconds,
+        minutes,
+        isRunning,
+        restart,
+        start,
+    } = useTimer({ expiryTimestamp: new Date(Date.now() + 5 * 1000), onExpire: () => console.warn('Timer expired!'), autoStart: false });
+
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [timer, setTimer] = useState(30);
-
-    useEffect(() => {
-        if (!isModalOpen) return;
-        setTimer(30);
-        const interval = setInterval(() => {
-            setTimer((prev) => {
-                if (prev <= 1) { clearInterval(interval); return 0; }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [isModalOpen]);
 
     const { mutateAsync: login, isPending } = useMutation({
         mutationFn: async (body: { email: string; password: string }) => {
@@ -54,11 +50,10 @@ function Login() {
         onError: (err) => {
             const error = err as AxiosError<{ title?: string }>;
             if (error.status === 409) {
-                setIsModalOpen(true)
+                resend({ email: getValues('email') });
             }
             else {
                 message.error(error.response?.data?.title || "Code error");
-
             }
         },
         onSuccess: (data) => {
@@ -83,6 +78,22 @@ function Login() {
             message.success('Verified!');
         },
     });
+
+    const { mutateAsync: resend, isPending: isPendingResend } = useMutation({
+        mutationFn: async (body: { email: string }) => {
+            const { data } = await api.post('/accounts/resend-verification-email', body)
+            return data;
+        },
+        onSuccess: () => {
+            setIsModalOpen(true)
+            message.success('code sent!')
+        },
+        onError: (err) => {
+            const error = err as AxiosError<{ title?: string }>;
+            message.error(error.response?.data?.title || "Error");
+        }
+    }
+    )
 
     const { handleSubmit, control, getValues, formState: { errors } } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
@@ -109,13 +120,14 @@ function Login() {
         }
     };
 
+
     return (
         <div className="p-6">
             <section className="bg-linear-to-r from-white to-blue-50 border rounded-2xl m-auto md:w-100 mt-20 flex flex-col items-center py-16">
                 <h1 className="text-3xl font-bold mb-6">Login</h1>
                 <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
                     <div className="isabey">
-                        <label className="block font-medium mb-1">Email*</label>
+                        <label className=" font-medium mb-1">Email*</label>
                         <Controller
                             name="email"
                             control={control}
@@ -127,7 +139,7 @@ function Login() {
                     </div>
 
                     <div className="isabey">
-                        <label className="block font-medium mb-1">Password*</label>
+                        <label className=" font-medium mb-1">Password*</label>
                         <Controller
                             name="password"
                             control={control}
@@ -142,46 +154,54 @@ function Login() {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword((prev) => !prev)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                                        className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 text-gray-500"
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
                             )}
                         />
+                        <button onClick={() => { navigate('/auth/forgot-password') }} className="text-sm cursor-pointer hover:underline text-blue-700">Forget password?</button>
+
                         {errors.password && <p className="text-red-500 text-sm mt-1 max-w-48">{errors.password.message}</p>}
                     </div>
 
                     <button
                         type="button"
-                        disabled={isPending}
+                        disabled={isPending || isPendingCode || isPendingResend}
                         onClick={handleSubmit(onSubmit)}
                         className="cursor-pointer w-full bg-blue-700 disabled:bg-blue-400 text-white font-medium text-sm rounded-md py-2"
                     >
-                        {isPending ? "Please wait..." : "Continue"}
+                        {(isPending || isPendingCode || isPendingResend) ? "Please wait..." : "Continue"}
                     </button>
 
-                    <a onClick={() => navigate("/register")} className="cursor-pointer text-blue-600 flex justify-center gap-3">
+                    <a onClick={() => navigate("/auth/register")} className="cursor-pointer text-blue-700 flex justify-center ">
                         Don't have an account?
                     </a>
+
                     <Modal
                         closable={false}
                         width={300}
                         style={{ top: 130 }}
                         open={isModalOpen}
+                        afterOpenChange={(open) => {
+                            if (open) {
+                                start();
+                            }
+                        }}
                         footer={
-                            timer > 0
-                                ? <p className="text-center text-gray-400 text-sm">Resend code in {timer}s</p>
-                                : <button
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '18px' }}>
+                                    <span>{minutes}</span>:<span>{seconds}</span>
+                                </div>
+                                <button disabled={isRunning} className="cursor-pointer disabled:cursor-default disabled:text-blue-200 text-blue-700"
                                     onClick={() => {
-                                        const { email, password } = getValues();
-                                        login({ email, password });
-                                        setTimer(30);
-                                    }}
-                                    className="flex text-blue-700 m-auto cursor-pointer hover:underline duration-200"
-                                >
-                                    Resend code
-                                </button>
+                                        const time = new Date();
+                                        time.setSeconds(time.getSeconds() + 30);
+                                        resend({ email: getValues('email') })
+                                        restart(time);
+                                    }}>Resend code</button>
+                            </div>
                         }
                     >
                         <div className="my-4">

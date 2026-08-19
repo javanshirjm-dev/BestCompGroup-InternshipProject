@@ -18,11 +18,11 @@ api.interceptors.response.use(
     async (error) => {
         const original = error.config;
 
-        if (!!localStorage.getItem('accessToken') && error?.response.status === 401 && !original._retry) {
+        if (!!localStorage.getItem('token') && error?.response.status === 401 && !original._retry) {
             if (isRefreshing) {
                 return new Promise((resolve) => {
                     queue.push((token) => {
-                        original.headers.Authorization = `Bearer: ${token}`;
+                        original.headers.Authorization = `Bearer  ${token}`;
                         resolve(api(original));
                     });
                 });
@@ -39,7 +39,7 @@ api.interceptors.response.use(
                 );
 
                 localStorage.setItem("token", data.accessToken);
-                api.defaults.headers.common.Authorization = `Bearer: ${data.accessToken}`;
+                api.defaults.headers.common.Authorization = `Bearer  ${data.accessToken}`;
 
                 queue.forEach((cb) => cb(data.accessToken));
                 queue = [];
@@ -48,7 +48,7 @@ api.interceptors.response.use(
                 return api(original);
             } catch {
                 localStorage.removeItem("token");
-                window.location.href = "/login";
+                window.location.href = "/auth/login";
                 return Promise.reject(error);
             } finally {
                 isRefreshing = false;

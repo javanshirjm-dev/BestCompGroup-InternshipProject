@@ -26,16 +26,16 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
             },
         });
     };
-    console.log(images.length)
+
     return (
-        <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer hover:shadow-2xl  duration-300 rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
-            <div className="relative bg-[#f7f8f9] ">
+        <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer hover:shadow-2xl duration-300 rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
+            <div className="relative bg-[#fff8fe] overflow-hidden border-b-2 border-gray-200">
                 <img
-                    className="w-full h-75 rounded-md object-cover"
+                    className="w-full h-66 p-2 object-contain"
                     src={images[0]?.url || "https://hotmodagency.com/wp-content/uploads/2022/08/placeholder-1-1.jpeg"}
                     alt={title}
                 />
-                <div className=" absolute right-4 top-4">
+                <div className="absolute right-4 top-4">
                     <Dropdown
                         menu={{
                             items: [
@@ -63,7 +63,7 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
                         trigger={['click']}>
                         <a onClick={(e) => { e.stopPropagation(); }}>
                             <Space>
-                                <Ellipsis className='text-gray-800 rounded-lg  hover:scale-130  duration-200' />
+                                <Ellipsis className='text-black bg-gray-200/35 rounded-lg w-9 hover:scale-110  duration-200' />
                             </Space>
                         </a>
                     </Dropdown>
