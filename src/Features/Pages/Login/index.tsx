@@ -161,13 +161,13 @@ function Login() {
                                 </div>
                             )}
                         />
-                        <button onClick={() => { navigate('/auth/forgot-password') }} className="text-sm cursor-pointer hover:underline text-blue-700">Forget password?</button>
+                        <button type='button' onClick={() => { navigate('/auth/forgot-password') }} className="text-sm cursor-pointer hover:underline text-blue-700">Forget password?</button>
 
                         {errors.password && <p className="text-red-500 text-sm mt-1 max-w-48">{errors.password.message}</p>}
                     </div>
 
                     <button
-                        type="button"
+                        type='submit'
                         disabled={isPending || isPendingCode || isPendingResend}
                         onClick={handleSubmit(onSubmit)}
                         className="cursor-pointer w-full bg-blue-700 disabled:bg-blue-400 text-white font-medium text-sm rounded-md py-2"
@@ -175,9 +175,9 @@ function Login() {
                         {(isPending || isPendingCode || isPendingResend) ? "Please wait..." : "Continue"}
                     </button>
 
-                    <a onClick={() => navigate("/auth/register")} className="cursor-pointer text-blue-700 flex justify-center ">
+                    <button type='button' onClick={() => navigate("/auth/register")} className="cursor-pointer text-blue-700 flex justify-center ">
                         Don't have an account?
-                    </a>
+                    </button>
 
                     <Modal
                         closable={false}

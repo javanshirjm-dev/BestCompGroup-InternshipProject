@@ -6,7 +6,7 @@ import axios from "axios";
 
 import type { ProductImage } from "../../Types/Global";
 
-const BASE_URL = "https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api/ProductImages";
+const BASE_URL = "http://10.100.50.28:5158/api/ProductImages";
 const MAX_IMAGES = 10;
 
 interface ImageEntry {

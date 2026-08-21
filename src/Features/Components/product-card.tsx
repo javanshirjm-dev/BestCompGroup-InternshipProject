@@ -7,7 +7,7 @@ import useDeleteProduct from '../../hooks/useDeleteProduct';
 
 const { confirm } = Modal;
 
-const ProductCard = ({ id, title, price, images, categoryName, rating }: Product) => {
+const ProductCard = ({ id, title, price, images, categoryName, rating, reviewCount, }: Product) => {
     const { mutate } = useDeleteProduct();
     const navigate = useNavigate();
     const showDeleteConfirm = () => {
@@ -31,7 +31,7 @@ const ProductCard = ({ id, title, price, images, categoryName, rating }: Product
         <div tabIndex={0} onClick={() => navigate(`/products/${id}`)} className="cursor-pointer hover:shadow-2xl duration-300 rounded-2xl overflow-hidden  w-full h-full  border-2 border-gray-200 shadow-md">
             <div className="relative bg-[#fff8fe] overflow-hidden border-b-2 border-gray-200">
                 <img
-                    className="w-full h-66 p-2 object-contain"
+                    className="w-full h-64 p-2 object-contain"
                     src={images[0]?.url || "https://hotmodagency.com/wp-content/uploads/2022/08/placeholder-1-1.jpeg"}
                     alt={title}
                 />

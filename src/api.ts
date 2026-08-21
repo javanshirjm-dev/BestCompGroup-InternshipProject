@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const BASE_URL = "https://shoppingwepapi-ercpgggcdxffbbat.polandcentral-01.azurewebsites.net/api";
+const BASE_URL = "http://10.100.50.28:5158/api";
 
-const api = axios.create({ baseURL: BASE_URL, withCredentials: true });
+const api = axios.create({ baseURL: BASE_URL, withCredentials: true, paramsSerializer: { indexes: null }, });
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");

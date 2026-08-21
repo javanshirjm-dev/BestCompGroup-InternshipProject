@@ -7,10 +7,9 @@ export type NavbarItems = {
 
 export interface Review {
     comment: string;
-    date: string;
+    createdAt: string;
     rating: number;
-    reviewerEmail: string;
-    reviewerName: string;
+    name: string;
 }
 
 export interface ProductImage {
@@ -19,6 +18,10 @@ export interface ProductImage {
     isMain?: boolean;
     tempId?: string;
     isUploading?: boolean;
+}
+export interface Category {
+    id?: number;
+    name?: string;
 }
 
 
@@ -30,6 +33,7 @@ export interface Product {
     price: number;
     brand: string;
     sku: string;
+    reviewCount?: number;
     reviews: Review[];
     quantity: number;
     images: ProductImage[];
